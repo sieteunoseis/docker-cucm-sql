@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <!-- Handsontable CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css"
+      rel="stylesheet"
+      media="screen"
+    />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <!-- CodeMirror CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/monokai.min.css"
+      integrity="sha512-R6PH4vSzF2Yxjdvb2p2FA06yWul+U0PDDav4b/od/oXf9Iw37zl10plvwOXelrjV2Ai7Eo3vyHeyFUjhXdBCVQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"
+      integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- FontAwesom CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <title><%= title %></title>
+  </head>
+  <body>
+    <!-- Page Content-->
+    <div class="container-fluid">
+      <div class="container-fluid mt-5">
+        <div class="toast">
+          <div class="toast-content">
+            <div id="iconHolder"></div>
+
+            <div class="message">
+              <span class="text text-1" id="text-1">Success</span>
+              <span class="text text-2" id="text-2"
+                >Your changes has been saved</span
+              >
+            </div>
+          </div>
+          <button type="button" id="closeAlert">
+            <i class="fa-solid fa-xmark closeAlert"></i>
+          </button>
+
+          <div class="progress"></div>
+        </div>
+      </div>
+      <div class="container mt-5">
+        <div class="row justify-content-center">
+          <div class="col-sm-auto section-title">
+            <h1>Cisco CUCM SQL Editor</h1>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-md-center mt-4 flex-nowrap">
+        <div class="col-sm-auto">
+          <div class="input-group">
+            <select
+              class="custom-select"
+              data-dropup-auto="false"
+              id="selectQuery"
+            >
+              <option selected>Load SQL Query</option>
+            </select>
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                data-toggle="tooltip"
+                data-placement="Right"
+                title="Load SQL Query"
+                id="loadButton"
+              >
+                <i class="fa-solid fa-file-export"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-md-center mt-4 flex-nowrap">
+        <div class="col-auto">
+          <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group-vertical mr-2" role="group">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="left"
+                title="Run SQL Query"
+                id="runButton"
+              >
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="left"
+                title="Save SQL Query"
+                style="padding: 3px"
+              >
+                <span
+                  data-toggle="modal"
+                  data-target="#saveModal"
+                  style="display: block; width: 100%"
+                >
+                  <i class="fa-solid fa-floppy-disk"></i>
+                </span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="left"
+                title="Format SQL Query"
+                id="formatButton"
+              >
+                <i class="fa-solid fa-highlighter"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="left"
+                title="Clear SQL Query"
+                id="clearButton"
+              >
+                <i class="fa-solid fa-eraser"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="left"
+                title="Help"
+                style="padding: 3px"
+              >
+                <span
+                  data-toggle="modal"
+                  data-target="#helpModal"
+                  style="display: block; width: 100%"
+                >
+                  <i class="fa-solid fa-question"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-auto">
+          <div class="input-group">
+            <textarea class="form-control" id="codeArea"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="container mt-4 pb-5 collapse" id="resultsContainer">
+        <div class="row justify-content-center pb-4">
+          <div class="col-sm-auto section-title"><h1>Results</h1></div>
+        </div>
+        <div
+          class="row justify-content-center flex-nowrap mt-4"
+          id="spinnerContainer"
+        >
+          <span class="loader"></span>
+        </div>
+        <div
+          class="row justify-content-center flex-nowrap d-none"
+          id="tableContainer"
+        >
+          <div class="col-auto">
+            <div class="btn-toolbar" role="toolbar">
+              <div class="btn-group-vertical" role="group">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-toggle="tooltip"
+                  data-placement="Left"
+                  title="Search results"
+                  id="searchResults"
+                >
+                  <span
+                    data-toggle="modal"
+                    data-target="#searchModal"
+                    style="display: block; width: 100%"
+                  >
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-toggle="tooltip"
+                  data-placement="Left"
+                  title="Download Results CSV"
+                  id="export-file"
+                >
+                  <i class="fa-solid fa-download"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-auto">
+            <div class="border" id="handsontable"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div
+      class="modal fade"
+      id="saveModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="saveModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="saveModalLabel">Save SQL Query</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Give your query a great name!"
+                id="sqlTitle"
+                maxlength="255"
+              />
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">.sql</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="saveButton">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div
+      class="modal fade"
+      id="searchModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="searchModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="searchModalLabel">
+              Search thru results
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" id="searchField" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div
+      class="modal fade"
+      id="helpModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="helpModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="helpModalLabel">Help</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h6>Supported Comments:</h6>
+            <p class="comments">	-- space needed after '--'</p>
+            <p class="comments"> /* multiline <br>
+              comment! */</p>
+            <h6>Tips and Tricks:</h6>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"
+      integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+      integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/sql-hint.min.js"
+      integrity="sha512-O7YCIZwiyJYc9d/iPOSgEzhhlonTMGcmM1HmgYFffj5cGwVu2PLSzTaLvD9HSk8rSSf9rIpdhJPk8Yhu6wJBtA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/sql/sql.min.js"
+      integrity="sha512-JOURLWZEM9blfKvYn1pKWvUZJeFwrkn77cQLJOS6M/7MVIRdPacZGNm2ij5xtDV/fpuhorOswIiJF3x/woe5fw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/sql-formatter@latest/dist/sql-formatter.min.js"
+    ></script>
+    <script src="js/handsontable.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

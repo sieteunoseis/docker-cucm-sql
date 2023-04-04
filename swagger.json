@@ -1,0 +1,20 @@
+{
+    "definition": {
+      "openapi": "3.0.3",
+      "info": {
+        "title": "CUCM SQL Editor",
+        "version": "0.2.0",
+        "description": "API Documentation for CUCM SQL Editor",
+        "license": {
+          "name": "MIT",
+          "url": "https://spdx.org/licenses/MIT.html"
+        },
+        "contact": {
+          "name": "Jeremy Worden",
+          "url": "https://automate.builders",
+          "email": "jeremy@automate.builders"
+        }
+      }
+    },
+    "apis": ["./routes/*.js"]
+  }

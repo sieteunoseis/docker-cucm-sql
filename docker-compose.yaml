@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+    cucm-sql-editor:
+      container_name: cucm-sql-editor
+      restart: always
+      image: sieteunoseis/cucm-sql-editor:latest
+      ports:
+        - "3000:3000"
+      env_file:
+        - .env
+      volumes:
+        - cucm-sql-data:/app/data
+volumes:
+  cucm-sql-data:
+    name: cucm-sql-data
