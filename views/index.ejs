@@ -347,10 +347,22 @@
           </div>
           <div class="modal-body">
             <h6>Supported Comments:</h6>
-            <p class="comments">	-- space needed after '--'</p>
-            <p class="comments"> /* multiline <br>
-              comment! */</p>
-            <h6>Tips and Tricks:</h6>
+            <ul class="list-group">
+              <li class="list-group-item comments border border-0">	-- singleline comment, space needed after '--'</li>
+              <li class="list-group-item comments border border-0">/* multiline <br>
+                comment! */</li>
+            </ul>
+            <h6 class="mt-4">Tips and Tricks:</h6>
+            <ul class="list-group">
+              <li class="list-group-item border border-0">Do not add <span class="font-italic font-weight-bold">'run sql'</span> to beginning of statement.</li>
+              <li class="list-group-item border border-0">Currently only <span class="font-italic font-weight-bold">'select'</span> statements are supported.</li>
+            </ul>
+            <h6 class="mt-4">AXL Limitations:</h6>
+            <ul class="list-group">
+              <li class="list-group-item border border-0">AXL read requests are NOT throttled even while write requests are being throttled.</li>
+              <li class="list-group-item border border-0">In addition to AXL requests throttling, the following AXL query limits are always enforced: A single request is limited to 8MB of data. Concurrent requests are limited to 16MB of data.</li>
+              <li class="list-group-item border border-0">The Data Throttling and Performance page on developer.cisco.com has more information on this topic.</li>
+            </ul>
           </div>
           <div class="modal-footer">
             <button

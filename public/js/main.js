@@ -103,7 +103,7 @@ async function runQuery() {
   query = codeEditor.getValue();
   if (query) {
     // Let's show the container holding the results
-    $("#resultsContainer").collapse();
+    $("#resultsContainer").collapse('show');
     // if handsontable already exists, let's add a spinner until a new one can be rendered
     if (hot) {
       $("#spinnerContainer").removeClass("d-none");
