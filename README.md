@@ -29,11 +29,13 @@ docker run -d -p 3000:3000 --name cucm-sql-editor --restart=always --env-file=.e
 
 ## Environment Variable
 
+```javascript
 NODE_ENV=production
 CUCM_HOSTNAME=devnetsandbox.cisco.com
 CUCM_USERNAME=administrator
 CUCM_PASSWORD=ciscopsdt
 CUCM_VERSION=12.5
+```
 
 ## Examples
 
@@ -47,7 +49,7 @@ http://localhost:3000/docs
 
 ## Screenshots
 
-Web-based CodeMirror editor. Configured to support [x-sql](https://codemirror.net/5/mode/sql/).
+Web-based CodeMirror editor. Configured to support [x-sql](https://codemirror.net/5/mode/sql/). This allows for generic SQL support as IBM's informix is not widely used.
 
 ![Editor](https://github.com/sieteunoseis/docker-cucm-sql/blob/main/screenshots/editor.png?raw=true)
 
