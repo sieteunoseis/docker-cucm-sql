@@ -14,8 +14,17 @@ npm install
 npm run start
 ```
 
-Using Docker:
+Build and run using Docker:
+
+```bash
+npm run docker:build
+npm run docker:run
+```
+Pull Image from Docker.io
+
+```bash
 docker run -d -p 3000:3000 --name cucm-sql-editor --restart=always --env-file=.env -v cucm-sql-data:/app/data sieteunoseis/cucm-sql-editor:latest
+```
 
 ## Environment Variable
 
@@ -31,7 +40,13 @@ Check **data** folder for SQL examples. If you use Docker you want to mount this
 
 ## Supported API
 
-API's used in this project can be used external. Currently they are unsu
+API's used in this project can be used external. Currently they are unsecured. Information can be found at:
+
+http://localhost:3000/docs
+
+## Screenshots
+
+![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
 
 ## Limitations
 
