@@ -27,6 +27,8 @@ Pull image from Docker.io and run with the following:
 docker run -d -p 3000:3000 --name cucm-sql-editor --restart=always --env-file=.env -v cucm-sql-data:/app/data sieteunoseis/cucm-sql-editor:latest
 ```
 
+For more information on docker image check [here](https://hub.docker.com/repository/docker/sieteunoseis/cucm-sql-editor/general).
+
 ## Environment Variable
 
 ```javascript
