@@ -74,4 +74,4 @@ Currently this application will only do select statements. Update queries are no
 
 If you would like to support my work and the time I put in creating the code, you can click the image below to get me a coffee. I would really appreciate it (but is not required).
 
-[Buy Me a Coffee](https://www.buymeacoffee.com/automatebldrs)
+[![Buy Me a Coffee](https://github.com/appcraftstudio/buymeacoffee/raw/master/Images/snapshot-bmc-button.png)](https://www.buymeacoffee.com/automatebldrs)
