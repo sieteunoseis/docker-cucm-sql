@@ -16,12 +16,7 @@
       media="screen"
     />
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="/bootstrap/bootstrap.min.css" />
     <!-- CodeMirror CSS -->
     <link
       rel="stylesheet"
@@ -79,25 +74,17 @@
       <div class="row justify-content-md-center mt-4 flex-nowrap">
         <div class="col-sm-auto">
           <div class="input-group">
-            <select
-              class="custom-select"
-              data-dropup-auto="false"
-              id="selectQuery"
+            <select class="form-select" size="5" id="selectQuery"></select>
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              data-toggle="tooltip"
+              data-placement="Right"
+              title="Load SQL Query"
+              id="loadButton"
             >
-              <option selected>Load SQL Query</option>
-            </select>
-            <div class="input-group-append">
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                data-toggle="tooltip"
-                data-placement="Right"
-                title="Load SQL Query"
-                id="loadButton"
-              >
-                <i class="fa-solid fa-file-export"></i>
-              </button>
-            </div>
+              <i class="fa-solid fa-file-export"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -184,7 +171,30 @@
           class="row justify-content-center flex-nowrap mt-4"
           id="spinnerContainer"
         >
-          <span class="loader"></span>
+        <div class="spinner-grow text-danger m-4" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="spinner-grow text-danger m-4" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
         <div
           class="row justify-content-center flex-nowrap d-none"
@@ -242,14 +252,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="saveModalLabel">Save SQL Query</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -260,9 +262,7 @@
                 id="sqlTitle"
                 maxlength="255"
               />
-              <div class="input-group-append">
-                <span class="input-group-text" id="basic-addon2">.sql</span>
-              </div>
+              <span class="input-group-text" id="basic-addon2">.sql</span>
             </div>
           </div>
           <div class="modal-footer">
@@ -296,14 +296,6 @@
             <h5 class="modal-title" id="searchModalLabel">
               Search thru results
             </h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -336,32 +328,46 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="helpModalLabel">Help</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           <div class="modal-body">
             <h6>Supported Comments:</h6>
             <ul class="list-group">
-              <li class="list-group-item comments border border-0">	-- singleline comment, space needed after '--'</li>
-              <li class="list-group-item comments border border-0">/* multiline <br>
-                comment! */</li>
+              <li class="list-group-item comments border border-0">
+                -- singleline comment, space needed after '--'
+              </li>
+              <li class="list-group-item comments border border-0">
+                /* multiline <br />
+                comment! */
+              </li>
             </ul>
             <h6 class="mt-4">Tips and Tricks:</h6>
             <ul class="list-group">
-              <li class="list-group-item border border-0">Do not add <span class="font-italic font-weight-bold">'run sql'</span> to beginning of statement.</li>
-              <li class="list-group-item border border-0">Currently only <span class="font-italic font-weight-bold">'select'</span> statements are supported.</li>
+              <li class="list-group-item border border-0">
+                Do not add
+                <span class="font-italic font-weight-bold">'run sql'</span> to
+                beginning of statement.
+              </li>
+              <li class="list-group-item border border-0">
+                Currently only
+                <span class="font-italic font-weight-bold">'select'</span>
+                statements are supported.
+              </li>
             </ul>
             <h6 class="mt-4">AXL Limitations:</h6>
             <ul class="list-group">
-              <li class="list-group-item border border-0">AXL read requests are NOT throttled even while write requests are being throttled.</li>
-              <li class="list-group-item border border-0">In addition to AXL requests throttling, the following AXL query limits are always enforced: A single request is limited to 8MB of data. Concurrent requests are limited to 16MB of data.</li>
-              <li class="list-group-item border border-0">The Data Throttling and Performance page on developer.cisco.com has more information on this topic.</li>
+              <li class="list-group-item border border-0">
+                AXL read requests are NOT throttled even while write requests
+                are being throttled.
+              </li>
+              <li class="list-group-item border border-0">
+                In addition to AXL requests throttling, the following AXL query
+                limits are always enforced: A single request is limited to 8MB
+                of data. Concurrent requests are limited to 16MB of data.
+              </li>
+              <li class="list-group-item border border-0">
+                The Data Throttling and Performance page on developer.cisco.com
+                has more information on this topic.
+              </li>
             </ul>
           </div>
           <div class="modal-footer">

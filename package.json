@@ -1,6 +1,6 @@
 {
   "name": "docker-cucm-sql",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
@@ -12,6 +12,7 @@
     "docker:prune": "docker system prune -a"
   },
   "dependencies": {
+    "bootstrap": "^5.2.3",
     "cisco-axl": "^1.1.8",
     "codemirror": "^5.65.12",
     "cookie-parser": "~1.4.4",

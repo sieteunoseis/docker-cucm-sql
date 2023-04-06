@@ -60,7 +60,7 @@ function load() {
 loadButton.addEventListener("click", load);
 
 function clear() {
-  document.getElementById("title").value = "";
+  document.getElementById("sqlTitle").value = "";
   codeEditor.setValue("");
 }
 
@@ -178,11 +178,9 @@ function updateSelect() {
   })
     .then((response) => response.json())
     .then((body) => {
-      var startOptions = ["<option selected>Load SQL Query</option>"];
-      var returnOptions = body.map((e) => {
+      var options = body.map((e) => {
         return `<option value="${e}">${e}</option>`;
       });
-      const options = [...startOptions, ...returnOptions];
       document.getElementById("selectQuery").innerHTML = options;
     })
     .catch((err) => console.log(err));
@@ -208,6 +206,7 @@ $("#saveModal").on("shown.bs.modal", function () {
 });
 
 function showAlert(messageTitle, messageBody) {
+  console.log('Alert!!!');
   const toast = document.querySelector(".toast");
   const progress = document.querySelector(".progress");
   const messageTitleSpan = document.getElementById("text-1");
