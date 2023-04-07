@@ -1,6 +1,5 @@
 function buildTable(tableData) {
   var container = document.getElementById("handsontable");
-
   // if table already exist, let's destroy it!!!!!
   if (hot) {
     hot.destroy();
@@ -14,7 +13,7 @@ function buildTable(tableData) {
     stretchH: "all",
     rowHeaders: true,
     colHeaders: Object.keys(tableData[0]),
-    height: "1200px",
+    height: 1200,
     search: true,
     renderer: function (instance, td, row, col, prop, value, cellProperties) {
       Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -26,15 +25,15 @@ function buildTable(tableData) {
 
   width = document.body.clientWidth;
   height = document.body.clientHeight;
-  hot.updateSettings({ width: width * 0.7 });
+  hot.updateSettings({ width: width * 0.75 });
 
   hot.selectCell(0, 0);
 
-  var button1 = document.getElementById("export-file");
-  var exportPlugin1 = hot.getPlugin("exportFile");
+  var exportFile = document.getElementById("export-file");
+  var exportPlugin = hot.getPlugin("exportFile");
 
-  button1.addEventListener("click", function () {
-    exportPlugin1.downloadFile("csv", {
+  exportFile.addEventListener("click", function () {
+    exportPlugin.downloadFile("csv", {
       bom: false,
       columnDelimiter: ",",
       columnHeaders: true,
@@ -49,13 +48,13 @@ function buildTable(tableData) {
   });
 
   const searchField = document.querySelector("#searchField");
-
   // add a search input listener
   searchField.addEventListener("keyup", function (event) {
     // get the `Search` plugin's instance
     const search = hot.getPlugin("search");
     // use the `Search` plugin's `query()` method
     const queryResult = search.query(event.target.value);
+    // Return results to UI so user can select where to go
     hot.render();
   });
 }

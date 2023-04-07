@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
@@ -9,12 +9,6 @@
     />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/stylesheets/style.css" />
-    <!-- Handsontable CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css"
-      rel="stylesheet"
-      media="screen"
-    />
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
@@ -37,13 +31,19 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- FontAwesom CSS -->
+    <!-- FontAwesome CSS -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
+    />
+    <!-- Handsontable CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css"
+      rel="stylesheet"
+      media="screen"
     />
     <title><%= title %></title>
   </head>
@@ -52,8 +52,17 @@
     <div class="container-fluid">
       <div class="form-check form-switch ms-auto mt-2 me-2 float-end">
         <label class="form-check-label ms-3" for="lightSwitch">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16">
-            <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            fill="currentColor"
+            class="bi bi-brightness-high"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"
+            />
           </svg>
         </label>
         <input class="form-check-input" type="checkbox" id="lightSwitch" />
@@ -90,9 +99,9 @@
             <button
               class="btn btn-secondary"
               type="button"
-              data-toggle="tooltip"
-              data-placement="Right"
-              title="Load SQL Query"
+              data-bs-toggle="tooltip"
+              data-bs-placement="Right"
+              data-bs-title="Load SQL Query"
               id="loadButton"
             >
               <i class="fa-solid fa-file-export"></i>
@@ -107,9 +116,9 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                data-toggle="tooltip"
-                data-placement="left"
-                title="Run SQL Query"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                data-bs-title="Run SQL Query"
                 id="runButton"
               >
                 <i class="fa-solid fa-play"></i>
@@ -117,14 +126,14 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                data-toggle="tooltip"
-                data-placement="left"
-                title="Save SQL Query"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                data-bs-title="Save SQL Query"
                 style="padding: 3px"
               >
                 <span
-                  data-toggle="modal"
-                  data-target="#saveModal"
+                  data-bs-toggle="modal"
+                  data-bs-target="#saveModal"
                   style="display: block; width: 100%"
                 >
                   <i class="fa-solid fa-floppy-disk"></i>
@@ -133,9 +142,9 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                data-toggle="tooltip"
-                data-placement="left"
-                title="Format SQL Query"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                data-bs-title="Format SQL Query"
                 id="formatButton"
               >
                 <i class="fa-solid fa-highlighter"></i>
@@ -143,9 +152,9 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                data-toggle="tooltip"
-                data-placement="left"
-                title="Clear SQL Query"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                data-bs-title="Clear SQL Query"
                 id="clearButton"
               >
                 <i class="fa-solid fa-eraser"></i>
@@ -153,14 +162,14 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                data-toggle="tooltip"
-                data-placement="left"
-                title="Help"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                data-bs-title="Help"
                 style="padding: 3px"
               >
                 <span
-                  data-toggle="modal"
-                  data-target="#helpModal"
+                  data-bs-toggle="modal"
+                  data-bs-target="#helpModal"
                   style="display: block; width: 100%"
                 >
                   <i class="fa-solid fa-question"></i>
@@ -175,7 +184,7 @@
           </div>
         </div>
       </div>
-      <div class="container mt-4 pb-5 collapse" id="resultsContainer">
+      <div class="container-fluid mt-4 pb-5 collapse" id="resultsContainer">
         <div class="row justify-content-center pb-4">
           <div class="col-sm-auto section-title"><h1>Results</h1></div>
         </div>
@@ -218,14 +227,14 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
-                  data-toggle="tooltip"
-                  data-placement="Left"
-                  title="Search results"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="Left"
+                  data-bs-title="Search results"
                   id="searchResults"
                 >
                   <span
-                    data-toggle="modal"
-                    data-target="#searchModal"
+                    data-bs-toggle="modal"
+                    data-bs-target="#searchModal"
                     style="display: block; width: 100%"
                   >
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -234,9 +243,9 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
-                  data-toggle="tooltip"
-                  data-placement="Left"
-                  title="Download Results CSV"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="Left"
+                  data-bs-title="Download Results CSV"
                   id="export-file"
                 >
                   <i class="fa-solid fa-download"></i>
@@ -245,7 +254,7 @@
             </div>
           </div>
           <div class="col-xl-auto">
-            <div class="border" id="handsontable"></div>
+            <div id="handsontable"></div>
           </div>
         </div>
       </div>
@@ -256,14 +265,19 @@
       class="modal fade"
       id="saveModal"
       tabindex="-1"
-      role="dialog"
       aria-labelledby="saveModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="saveModalLabel">Save SQL Query</h5>
+            <h1 class="modal-title fs-5" id="saveModalLabel">Save Query</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -281,12 +295,12 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
             <button type="button" class="btn btn-primary" id="saveButton">
-              Save
+              Save changes
             </button>
           </div>
         </div>
@@ -298,16 +312,21 @@
       class="modal fade"
       id="searchModal"
       tabindex="-1"
-      role="dialog"
       aria-labelledby="searchModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="searchModalLabel">
-              Search thru results
-            </h5>
+            <h1 class="modal-title fs-5" id="searchModalLabel">
+              Search Results
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -318,7 +337,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
@@ -332,14 +351,19 @@
       class="modal fade"
       id="helpModal"
       tabindex="-1"
-      role="dialog"
-      aria-labelledby="helpModalLabel"
+      aria-labelledby="searchModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="helpModalLabel">Help</h5>
+            <h1 class="modal-title fs-5" id="helpModalLabel">Help</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <h6>Supported Comments:</h6>
@@ -386,7 +410,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
@@ -442,5 +466,6 @@
     ></script>
     <script src="js/handsontable.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/switch.js"></script>
   </body>
 </html>

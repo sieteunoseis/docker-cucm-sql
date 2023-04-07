@@ -20,29 +20,20 @@ document.addEventListener(
     // Update CodeMirror size based on window
     width = document.body.clientWidth;
     height = document.body.clientHeight;
-    codeEditor.setSize(width * 0.7, 400);
+    codeEditor.setSize(width * 0.75, 400);
 
     // Update dropdown
     updateSelect();
 
+    // Update handsontable width with window size
     if (hot) {
-      hot.updateSettings({ width: width * 0.7 });
+      hot.updateSettings({ width: width * 0.75 });
     }
 
     // Register the tool tip buttons
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
       trigger: "hover",
     });
-
-    // Dark mode light switch
-    $("input[id='lightSwitch']").on("change", function() {
-      if ($("html").attr("data-bs-theme") == 'light') {
-        $("html").attr("data-bs-theme", "dark");
-      } else if ($("html").attr("data-bs-theme") == "dark") {
-        $("html").attr("data-bs-theme", "light");
-      }
-    });
-
   },
   false
 );
@@ -80,7 +71,11 @@ function saveQuery() {
   query = codeEditor.getValue().trim();
   fileName = document.getElementById("sqlTitle").value;
 
-  if (query && fileName) {
+  // let's check if they added 'run sql'
+  var re = new RegExp("^(run sql)", "i");
+  var match = re.test(query);
+
+  if (query && fileName && !match) {
     var data = {
       query: query,
       fileName: fileName,
@@ -102,7 +97,11 @@ function saveQuery() {
       .catch((err) => console.log(err));
   } else {
     $("#saveModal").modal("toggle");
-    showAlert("Error", "Missing: Query and/or Query Name");
+    if(match){
+      showAlert("Error", "Please remove 'run sql' from statement");
+    }else{
+      showAlert("Error", "Missing: Query and/or Query Name");
+    }
   }
 }
 
@@ -111,9 +110,13 @@ saveButton.addEventListener("click", saveQuery);
 async function runQuery() {
   // Get query from CodeMirror Editor
   query = codeEditor.getValue();
-  if (query) {
+  // let's check if they added 'run sql'
+  var re = new RegExp("^(run sql)", "i");
+  var match = re.test(query);
+
+  if (query && !match) {
     // Let's show the container holding the results
-    $("#resultsContainer").collapse('show');
+    $("#resultsContainer").collapse("show");
     // if handsontable already exists, let's add a spinner until a new one can be rendered
     if (hot) {
       $("#spinnerContainer").removeClass("d-none");
@@ -142,18 +145,17 @@ async function runQuery() {
 
     if (res.status === 204) {
       // Let's hide the container holding the results
-      $("#resultsContainer").collapse('hide');
+      $("#resultsContainer").collapse("hide");
       // Display alert
       showAlert("Error", "No results returned.");
-
     } else {
       obj = await res.json();
 
       // 500 error, else 200 OK
-      if (obj?.faultcode || obj?.code === 'ECONNRESET') {
-        var fault = (obj?.faultstring || obj?.code);
+      if (obj?.faultcode || obj?.code === "ECONNRESET") {
+        var fault = obj?.faultstring || obj?.code;
         // Let's hide the container holding the results
-        $("#resultsContainer").collapse('hide');
+        $("#resultsContainer").collapse("hide");
         // Display alert
         showAlert("Error", fault);
       } else {
@@ -163,7 +165,11 @@ async function runQuery() {
       }
     }
   } else {
-    showAlert("Error", "Please enter a query first");
+    if (match) {
+      showAlert("Error", "Please remove 'run sql' from statement");
+    } else {
+      showAlert("Error", "Please enter a query first");
+    }
   }
 }
 
@@ -199,9 +205,9 @@ function updateSelect() {
 var onresize = function () {
   width = document.body.clientWidth;
   height = document.body.clientHeight;
-  codeEditor.setSize(width * 0.7, 400);
+  codeEditor.setSize(width * 0.75, 400);
   if (hot) {
-    hot.updateSettings({ width: width * 0.7 });
+    hot.updateSettings({ width: width * 0.75 });
   }
 };
 
@@ -216,7 +222,6 @@ $("#saveModal").on("shown.bs.modal", function () {
 });
 
 function showAlert(messageTitle, messageBody) {
-  console.log('Alert!!!');
   const toast = document.querySelector(".toast");
   const progress = document.querySelector(".progress");
   const messageTitleSpan = document.getElementById("text-1");

@@ -7,6 +7,18 @@ body {
   font-family: "Raleway", sans-serif;
 }
 
+/* Bootstrap overrides for buttons */
+
+.btn:focus {
+  box-shadow: none !important;
+}
+
+*:focus {
+  box-shadow: none !important;
+}
+
+ /* Alert Customization */
+
 .toast {
   position: absolute;
   top: 25px;
@@ -16,7 +28,7 @@ body {
   padding: 20px 35px 20px 25px;
   box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transform: translateX(calc(100% + 100px));
+  transform: translateX(calc(100% + 150px));
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
 }
 
@@ -114,15 +126,13 @@ body {
   }
 }
 
-.btn:focus {
-  box-shadow: none !important;
-}
-
 #closeAlert {
   padding: 0;
   border: none;
   background: none;
 }
+
+/* Handsontable Customization */
 
 #handsontable {
   overflow: hidden !important;
@@ -191,8 +201,4 @@ h1 em {
 
 .comments{
   color: red;
-}
-
-*:focus {
-  box-shadow: none !important;
 }
