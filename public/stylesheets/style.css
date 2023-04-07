@@ -3,7 +3,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f4f7ff;
   overflow-x: hidden;
   font-family: "Raleway", sans-serif;
 }
@@ -68,7 +67,6 @@ body {
 
 .message .text.text-1 {
   font-weight: 600;
-  color: #333;
 }
 
 .toast .closeAlert {
