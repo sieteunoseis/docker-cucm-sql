@@ -12,7 +12,6 @@
     "docker:prune": "docker system prune -a"
   },
   "dependencies": {
-    "bootstrap": "^5.2.3",
     "cisco-axl": "^1.1.8",
     "codemirror": "^5.65.12",
     "cookie-parser": "~1.4.4",
