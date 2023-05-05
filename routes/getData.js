@@ -35,21 +35,44 @@
  */
 
 
+const { makeValidator, cleanEnv, str, host} = require("envalid");
+const path = require("path");
+
 // Use dotenv for enviromental variables if development
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+if(process.env.NODE_ENV === "development"){
+  require('dotenv').config({ path: path.join(__dirname, '..', 'env', 'development.env') })
+}else if(process.env.NODE_ENV === "test"){
+  require('dotenv').config({ path: path.join(__dirname, '..', 'env', 'test.env') })
+}else if(process.env.NODE_ENV === "staging"){
+  require('dotenv').config({ path: path.join(__dirname, '..', 'env', 'staging.env') })
 }
 
 var express = require("express");
 var router = express.Router();
 const axlService = require("cisco-axl");
 
+const versionValid = makeValidator(x => {
+  if (/.*\..*[^\\]/.test(x)) return x.toUpperCase()
+  else throw new Error('CUCM_VERSION must be in the format of ##.#')
+})
+
+const env = cleanEnv(process.env, {
+  NODE_ENV: str({
+    choices: ["development", "test", "production", "staging"],
+    desc: "Node environment",
+  }),
+  CUCM_HOSTNAME: host({ desc: "Cisco CUCM Hostname or IP Address." }),
+  CUCM_USERNAME: str({ desc: "Cisco CUCM AXL Username." }),
+  CUCM_PASSWORD: str({ desc: "Cisco CUCM AXL Password." }),
+  CUCM_VERSION: versionValid({ desc: "Cisco CUCM Version." , example: "12.5" }),
+});
+
 // Set up new AXL service
 let service = new axlService(
-  process.env.CUCM_HOSTNAME,
-  process.env.CUCM_USERNAME,
-  process.env.CUCM_PASSWORD,
-  process.env.CUCM_VERSION
+  env.CUCM_HOSTNAME,
+  env.CUCM_USERNAME,
+  env.CUCM_PASSWORD,
+  env.CUCM_VERSION
 );
 
 /* POST table page. */

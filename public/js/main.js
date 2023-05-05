@@ -20,14 +20,23 @@ document.addEventListener(
     // Update CodeMirror size based on window
     width = document.body.clientWidth;
     height = document.body.clientHeight;
-    codeEditor.setSize(width * 0.75, 400);
+  
+    if(width > 1200){
+      codeEditor.setSize(1000, 400);
+    } else {  
+      codeEditor.setSize(width * 0.75, 400);
+    }
 
     // Update dropdown
     updateSelect();
 
     // Update handsontable width with window size
     if (hot) {
-      hot.updateSettings({ width: width * 0.75 });
+      if(width > 1200){
+        hot.updateSettings({ width: '1000px' });
+      } else {
+        hot.updateSettings({ width: width * 0.75 });
+      }
     }
 
     // Register the tool tip buttons
@@ -205,9 +214,19 @@ function updateSelect() {
 var onresize = function () {
   width = document.body.clientWidth;
   height = document.body.clientHeight;
-  codeEditor.setSize(width * 0.75, 400);
+
+  if(width > 1200){
+    codeEditor.setSize(1000, 400);
+  } else {  
+    codeEditor.setSize(width * 0.75, 400);
+  }
+
   if (hot) {
-    hot.updateSettings({ width: width * 0.75 });
+    if(width > 1200){
+      hot.updateSettings({ width: '1000px' });
+    } else {
+      hot.updateSettings({ width: width * 0.75 });
+    }
   }
 };
 

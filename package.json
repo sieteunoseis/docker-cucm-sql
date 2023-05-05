@@ -1,13 +1,13 @@
 {
   "name": "docker-cucm-sql",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "start": "NODE_ENV=test nodemon ./bin/www",
     "port": "lsof -i tcp:3000",
     "docker:build": "docker build --platform $npm_package_config_docker_platform -t $npm_package_config_docker_username/$npm_package_config_docker_name:$npm_package_version -t $npm_package_config_docker_username/$npm_package_config_docker_name:latest .",
     "docker:push": "docker push $npm_package_config_docker_username/$npm_package_config_docker_name:$npm_package_version && docker push $npm_package_config_docker_username/$npm_package_config_docker_name:latest",
-    "docker:run": "docker run -d -p 3000:3000 --name $npm_package_config_docker_name --restart=always --env-file=.env -v /Users/wordenj/Downloads/data:/app/data $npm_package_config_docker_username/$npm_package_name:$npm_package_version",
+    "docker:run": "docker run -d -p 3000:3000 --name $npm_package_config_docker_name --restart=always --env-file=./env/test.env -v /Users/wordenj/Downloads/data:/app/data $npm_package_config_docker_username/$npm_package_name:$npm_package_version",
     "docker:remove": "docker stop $npm_package_config_docker_name && docker rm $npm_package_config_docker_name",
     "docker:prune": "docker system prune -a"
   },
@@ -17,6 +17,7 @@
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
     "ejs": "~2.6.1",
+    "envalid": "^7.3.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",

@@ -49,7 +49,7 @@
   </head>
   <body>
     <!-- Page Content-->
-    <div class="container-fluid">
+    <div class="container">
       <div class="form-check form-switch ms-auto mt-2 me-2 float-end">
         <label class="form-check-label ms-3" for="lightSwitch">
           <svg
@@ -67,7 +67,7 @@
         </label>
         <input class="form-check-input" type="checkbox" id="lightSwitch" />
       </div>
-      <div class="container-fluid mt-5">
+      <div class="container mt-5">
         <div class="toast">
           <div class="toast-content">
             <div id="iconHolder"></div>
@@ -87,12 +87,12 @@
       </div>
       <div class="container mt-5">
         <div class="row justify-content-center">
-          <div class="col-sm-auto section-title">
+          <div class="col-auto section-title">
             <h1>Cisco CUCM SQL Editor</h1>
           </div>
         </div>
       </div>
-      <div class="row justify-content-md-center mt-4 flex-nowrap">
+      <div class="row justify-content-center mt-4 flex-nowrap">
         <div class="col-sm-auto">
           <div class="input-group">
             <select class="form-select" size="5" id="selectQuery"></select>
@@ -109,7 +109,7 @@
           </div>
         </div>
       </div>
-      <div class="row justify-content-md-center mt-4 flex-nowrap">
+      <div class="row justify-content-center mt-4 flex-nowrap">
         <div class="col-auto">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group-vertical mr-2" role="group">
@@ -178,15 +178,15 @@
             </div>
           </div>
         </div>
-        <div class="col-xl-auto">
+        <div class="col-auto" style="max-width: none;">
           <div class="input-group">
             <textarea class="form-control" id="codeArea"></textarea>
           </div>
         </div>
       </div>
-      <div class="container-fluid mt-4 pb-5 collapse" id="resultsContainer">
+      <div class="container mt-4 pb-5 collapse" id="resultsContainer">
         <div class="row justify-content-center pb-4">
-          <div class="col-sm-auto section-title"><h1>Results</h1></div>
+          <div class="col-auto section-title"><h1>Results</h1></div>
         </div>
         <div
           class="row justify-content-center flex-nowrap mt-4"
@@ -253,7 +253,7 @@
               </div>
             </div>
           </div>
-          <div class="col-xl-auto">
+          <div class="col-auto" style="max-width: none;">
             <div id="handsontable"></div>
           </div>
         </div>

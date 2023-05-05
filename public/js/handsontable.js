@@ -13,7 +13,7 @@ function buildTable(tableData) {
     stretchH: "all",
     rowHeaders: true,
     colHeaders: Object.keys(tableData[0]),
-    height: 1200,
+    height: "auto",
     search: true,
     renderer: function (instance, td, row, col, prop, value, cellProperties) {
       Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -25,8 +25,13 @@ function buildTable(tableData) {
 
   width = document.body.clientWidth;
   height = document.body.clientHeight;
-  hot.updateSettings({ width: width * 0.75 });
 
+  if (width > 1200) {
+    hot.updateSettings({ width: "1000px" });
+  } else {
+    hot.updateSettings({ width: width * 0.75 });
+  }
+  
   hot.selectCell(0, 0);
 
   var exportFile = document.getElementById("export-file");
