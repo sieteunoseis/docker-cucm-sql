@@ -25,14 +25,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/savequery", saveQuery);
-app.use("/getfiles", getFiles);
-app.use("/getquery", getQuery);
-app.use("/getdata", dataRouter);
+app.use("/api/savequery", saveQuery);
+app.use("/api/getfiles", getFiles);
+app.use("/api/getquery", getQuery);
+app.use("/api/getdata", dataRouter);
 
 // Swagger Docs
 const specs = swaggerJSDoc(swaggerDocument);
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Static Files
 app.use(

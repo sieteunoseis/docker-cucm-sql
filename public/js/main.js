@@ -52,7 +52,7 @@ function load() {
   if (fileName === "Load SQL Query") {
     showAlert("Error", "Please select a query first!");
   } else {
-    fetch("/getquery/" + fileName, {
+    fetch("/api/getquery/" + fileName, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -90,7 +90,7 @@ function saveQuery() {
       fileName: fileName,
     };
 
-    fetch("/savequery", {
+    fetch("/api/savequery", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +143,7 @@ async function runQuery() {
 
     let obj;
 
-    const res = await fetch("/getdata", {
+    const res = await fetch("/api/getdata", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -198,7 +198,7 @@ formatButton.addEventListener("click", formatEditor);
 
 function updateSelect() {
   // Get files for drop down
-  fetch("/getfiles", {
+  fetch("/api/getfiles", {
     method: "GET",
   })
     .then((response) => response.json())
