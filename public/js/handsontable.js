@@ -13,7 +13,7 @@ function buildTable(tableData) {
     stretchH: "all",
     rowHeaders: true,
     colHeaders: Object.keys(tableData[0]),
-    height: "auto",
+    height: "1024px",
     search: true,
     renderer: function (instance, td, row, col, prop, value, cellProperties) {
       Handsontable.renderers.TextRenderer.apply(this, arguments);
