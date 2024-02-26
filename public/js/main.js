@@ -8,6 +8,16 @@ document.addEventListener(
   function () {
     console.log("Page Loaded");
 
+    $(document).ready(function () {
+      $("#selectQuery").select2({
+        theme: "bootstrap-5",
+        width: "450px",
+        placeholder: $(this).data("placeholder"),
+        selectionCssClass: "select2--large",
+        dropdownCssClass: "select2--large",
+      });
+    });
+
     // Define CodeMirror Settings
     codeEditor = CodeMirror.fromTextArea(codeArea, {
       theme: "monokai",
@@ -20,10 +30,10 @@ document.addEventListener(
     // Update CodeMirror size based on window
     width = document.body.clientWidth;
     height = document.body.clientHeight;
-  
-    if(width > 1200){
+
+    if (width > 1200) {
       codeEditor.setSize(1000, 400);
-    } else {  
+    } else {
       codeEditor.setSize(width * 0.75, 400);
     }
 
@@ -32,8 +42,8 @@ document.addEventListener(
 
     // Update handsontable width with window size
     if (hot) {
-      if(width > 1200){
-        hot.updateSettings({ width: '1000px' });
+      if (width > 1200) {
+        hot.updateSettings({ width: "1000px" });
       } else {
         hot.updateSettings({ width: width * 0.75 });
       }
@@ -106,9 +116,9 @@ function saveQuery() {
       .catch((err) => console.log(err));
   } else {
     $("#saveModal").modal("toggle");
-    if(match){
+    if (match) {
       showAlert("Error", "Please remove 'run sql' from statement");
-    }else{
+    } else {
       showAlert("Error", "Missing: Query and/or Query Name");
     }
   }
@@ -215,15 +225,15 @@ var onresize = function () {
   width = document.body.clientWidth;
   height = document.body.clientHeight;
 
-  if(width > 1200){
+  if (width > 1200) {
     codeEditor.setSize(1000, 400);
-  } else {  
+  } else {
     codeEditor.setSize(width * 0.75, 400);
   }
 
   if (hot) {
-    if(width > 1200){
-      hot.updateSettings({ width: '1000px' });
+    if (width > 1200) {
+      hot.updateSettings({ width: "1000px" });
     } else {
       hot.updateSettings({ width: width * 0.75 });
     }

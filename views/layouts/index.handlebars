@@ -45,6 +45,9 @@
       rel="stylesheet"
       media="screen"
     />
+    <!-- Select2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <title>{{title}}</title>
   </head>
   <body>
@@ -98,9 +101,10 @@
         </div>
       </div>
       <div class="row justify-content-center mt-4 flex-nowrap">
-        <div class="col-sm-auto">
+        <div class="col-lg-auto">
           <div class="input-group">
-            <select class="form-select" size="5" id="selectQuery"></select>
+            {{!-- Select a SQL Query --}}
+            <select class="form-select form-select-lg" id="selectQuery"></select>
             <button
               class="btn btn-secondary"
               type="button"
@@ -469,6 +473,8 @@
       type="text/javascript"
       src="https://unpkg.com/sql-formatter@latest/dist/sql-formatter.min.js"
     ></script>
+    {{!-- Select2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="js/handsontable.js"></script>
     <script src="js/main.js"></script>
     <script src="js/switch.js"></script>
