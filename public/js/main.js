@@ -8,10 +8,11 @@ document.addEventListener(
   function () {
     console.log("Page Loaded");
 
+    // https://apalfrey.github.io/select2-bootstrap-5-theme/examples/sizing/
     $(document).ready(function () {
       $("#selectQuery").select2({
         theme: "bootstrap-5",
-        width: "450px",
+        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
         placeholder: $(this).data("placeholder"),
         selectionCssClass: "select2--large",
         dropdownCssClass: "select2--large",
