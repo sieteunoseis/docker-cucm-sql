@@ -48,14 +48,21 @@ router.post("/", function (req, res, next) {
   var fileName = req.body.fileName;
   fileName = fileName.replace(/[/\\?%*:|"<>\s]/g, "_");
 
+  // Let's create the file path
   filePath = path.join(__dirname, "..", "data", fileName + ".sql");
 
-  var formattedQuery = format(req.body.query, {
-    language: 'spark',
-    keywordCase: 'upper',
-    linesBetweenQueries: 2,
-  });
+  // Let's try to format the query as best as we can. If not possible, we'll just save the query as is.
+  try {
+    var formattedQuery = format(req.body.query, {
+      language: 'transactsql',
+      keywordCase: 'upper',
+      linesBetweenQueries: 2,
+    });
+  } catch (e) {
+    formattedQuery = req.body.query;
+  }
 
+  // Let's save the file
   try {
     fs.writeFile(filePath, formattedQuery, function () {
       res.status(200).send("Successfully saved file");

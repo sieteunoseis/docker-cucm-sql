@@ -197,7 +197,7 @@ runButton.addEventListener("click", runQuery);
 function formatEditor() {
   var query = codeEditor.getValue().trim();
   var formattedQuery = sqlFormatter.format(query, {
-    language: "spark",
+    language: "transactsql",
     keywordCase: "upper",
     linesBetweenQueries: 2,
   });
