@@ -170,7 +170,7 @@ async function runQuery() {
       showAlert("Error", "No results returned.");
     } else {
       obj = await res.json();
-      console.log(obj.row.length);
+      console.log(obj);
       // 500 error, else 200 OK
       if (obj?.faultcode || obj?.code === "ECONNRESET") {
         var fault = obj?.faultstring || obj?.code;
