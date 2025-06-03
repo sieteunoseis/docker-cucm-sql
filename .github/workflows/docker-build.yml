@@ -87,7 +87,7 @@ jobs:
             org.opencontainers.image.title=Cisco CUCM SQL Editor
             org.opencontainers.image.description=Web application for executing and managing SQL queries against Cisco CUCM databases
             org.opencontainers.image.version=${{ steps.package-version.outputs.version }}
-            org.opencontainers.image.created=${{ github.event.repository.updated_at }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
       
       # Scan the built image for vulnerabilities
       - name: Scan Container Image
