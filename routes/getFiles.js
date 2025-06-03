@@ -29,11 +29,15 @@ router.get("/", function (req, res, next) {
     }
     const EXTENSION = ".sql";
 
-    const targetFiles = files.filter((file) => {
+    // Filter SQL files
+    let targetFiles = files.filter((file) => {
       return path.extname(file).toLowerCase() === EXTENSION;
     });
+    
+    // Sort alphabetically
+    targetFiles.sort((a, b) => a.localeCompare(b));
 
-    res.send(targetFiles);
+    res.json(targetFiles);
   });
 });
 

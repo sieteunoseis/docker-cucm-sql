@@ -41,8 +41,44 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Static Files
 app.use(
-  "/bootstrap",
+  "/bootstrap/css",
   express.static(path.join(__dirname, "node_modules/bootstrap/dist/css"))
+);
+app.use(
+  "/bootstrap/js",
+  express.static(path.join(__dirname, "node_modules/bootstrap/dist/js"))
+);
+app.use(
+  "/jquery",
+  express.static(path.join(__dirname, "node_modules/jquery/dist"))
+);
+app.use(
+  "/popperjs",
+  express.static(path.join(__dirname, "node_modules/@popperjs/core/dist/umd"))
+);
+app.use(
+  "/codemirror",
+  express.static(path.join(__dirname, "node_modules/codemirror"))
+);
+app.use(
+  "/fontawesome",
+  express.static(path.join(__dirname, "node_modules/@fortawesome/fontawesome-free"))
+);
+app.use(
+  "/select2",
+  express.static(path.join(__dirname, "node_modules/select2/dist"))
+);
+app.use(
+  "/select2-bootstrap-5-theme",
+  express.static(path.join(__dirname, "node_modules/select2-bootstrap-5-theme/dist"))
+);
+app.use(
+  "/handsontable",
+  express.static(path.join(__dirname, "node_modules/handsontable/dist"))
+);
+app.use(
+  "/sql-formatter",
+  express.static(path.join(__dirname, "node_modules/sql-formatter"))
 );
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
