@@ -10,13 +10,8 @@ document.addEventListener(
 
     // https://apalfrey.github.io/select2-bootstrap-5-theme/examples/sizing/
     $(document).ready(function () {
-      $("#selectQuery").select2({
-        theme: "bootstrap-5",
-        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-        placeholder: $(this).data("placeholder"),
-        selectionCssClass: "select2--large",
-        dropdownCssClass: "select2--large",
-      });
+      // Initialize Select2 with updateSelect function
+      updateSelect();
     });
 
     // Define CodeMirror Settings
@@ -59,8 +54,9 @@ document.addEventListener(
 );
 
 function load() {
-  var fileName = document.getElementById("selectQuery").value;
-  if (fileName === "Load SQL Query") {
+  var fileName = $("#selectQuery").val();
+  
+  if (!fileName || fileName === "Load SQL Query") {
     showAlert("Error", "Please select a query first!");
   } else {
     fetch("/api/getquery/" + fileName, {
@@ -74,7 +70,10 @@ function load() {
         );
         codeEditor.setValue(results.data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        showAlert("Error", "Failed to load query: " + err.message);
+      });
   }
 }
 
@@ -217,6 +216,15 @@ function updateSelect() {
         return `<option value="${e}">${e}</option>`;
       });
       document.getElementById("selectQuery").innerHTML = options;
+      
+      // Check current theme to apply proper styling
+      const isDarkMode = $("html").attr("data-bs-theme") === "dark";
+      
+      // Initialize Select2 with theme-aware styling
+      $("#selectQuery").select2({
+        width: '100%',
+        placeholder: "Select SQL Query"
+      });
     })
     .catch((err) => console.log(err));
 }

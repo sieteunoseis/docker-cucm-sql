@@ -7,6 +7,8 @@
   if (!lightSwitch) {
     return;
   }
+  
+  // We'll use document ready to ensure Select2 is initialized
 
   /**
    * @function darkmode
@@ -21,6 +23,18 @@
       lightSwitch.checked = true;
     }
     localStorage.setItem('lightSwitch', 'dark');
+    
+    // Re-initialize Select2 to apply dark styles
+    if ($.fn.select2) {
+      // Briefly destroy and recreate select2 to refresh styling
+      let selectValue = $("#selectQuery").val();
+      $("#selectQuery").select2('destroy');
+      $("#selectQuery").select2({
+        width: '100%',
+        placeholder: "Select SQL Query"
+      });
+      $("#selectQuery").val(selectValue).trigger('change.select2');
+    }
   }
 
   /**
@@ -35,6 +49,18 @@
       lightSwitch.checked = false;
     }
     localStorage.setItem('lightSwitch', 'light');
+    
+    // Re-initialize Select2 to apply light styles
+    if ($.fn.select2) {
+      // Briefly destroy and recreate select2 to refresh styling
+      let selectValue = $("#selectQuery").val();
+      $("#selectQuery").select2('destroy');
+      $("#selectQuery").select2({
+        width: '100%',
+        placeholder: "Select SQL Query"
+      });
+      $("#selectQuery").val(selectValue).trigger('change.select2');
+    }
   }
 
   /**
@@ -72,7 +98,21 @@
     }
 
     lightSwitch.addEventListener('change', onToggleMode);
-    onToggleMode();
+    
+    // Wait for document ready to apply initial theme
+    $(document).ready(function() {
+      onToggleMode();
+      
+      // The updateSelect function handles Select2 initialization
+      // Ensure theme is properly applied after a short delay
+      setTimeout(function() {
+        if (lightSwitch.checked) {
+          darkMode();
+        } else {
+          lightMode();
+        }
+      }, 100);
+    });
   }
 
   setup();
