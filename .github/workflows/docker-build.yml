@@ -63,6 +63,7 @@ jobs:
         if: always() # Ensure this runs even if previous step fails
         with:
           sarif_file: 'trivy-results.sarif'
+          category: 'dependency-scan'
       
       # Only push to GitHub Container Registry since it doesn't require additional secrets
       - name: Login to GitHub Container Registry
@@ -103,3 +104,4 @@ jobs:
         if: always() # Ensure this runs even if previous step fails
         with:
           sarif_file: 'trivy-image-results.sarif'
+          category: 'container-scan'
