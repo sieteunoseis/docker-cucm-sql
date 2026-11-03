@@ -87,9 +87,15 @@ describe("GET /api/run/*", () => {
     expect((await app.inject({ method: "GET", url: `${URL}?dn=1`, headers: { authorization: "Bearer k123" } })).statusCode).toBe(200);
   });
 
-  it("remote-user bypasses api key", async () => {
+  it("a Remote-User header does not bypass the api key", async () => {
     const { app } = await setup({ apiKey: "k123" });
-    expect((await app.inject({ method: "GET", url: `${URL}?dn=1`, headers: { "remote-user": "jw" } })).statusCode).toBe(200);
+    expect((await app.inject({ method: "GET", url: `${URL}?dn=1`, headers: { "remote-user": "jw" } })).statusCode).toBe(401);
+  });
+
+  it("with the key, Remote-User is still used as the caller identity", async () => {
+    const { app, log } = await setup({ apiKey: "k123" });
+    await app.inject({ method: "GET", url: `${URL}?dn=1`, headers: { "remote-user": "jw", authorization: "Bearer k123" } });
+    expect((await log.query({})).entries[0].user).toBe("jw");
   });
 
   it("throttle returns 413 with counts", async () => {

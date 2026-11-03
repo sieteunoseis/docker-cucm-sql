@@ -71,6 +71,26 @@ describe("saved-query routes", () => {
     expect(await lastLog()).toMatchObject({ user: "jw", action: "save", path: "New/q" });
   });
 
+  it("PUT ?create=1 onto an existing query is 409 and keeps the file", async () => {
+    put("Get_All_Devices.sql", "original");
+    const res = await app.inject({ method: "PUT", url: "/api/queries/Get_All_Devices?create=1", payload: { sql: "select 2" } });
+    expect(res.statusCode).toBe(409);
+    expect(readFileSync(path.join(dir, "Get_All_Devices.sql"), "utf8")).toBe("original");
+  });
+
+  it("overwriting a query logs the previous sql so it can be restored", async () => {
+    put("q.sql", "select old");
+    await app.inject({ method: "PUT", url: "/api/queries/q", payload: { sql: "select new" } });
+    expect(await lastLog()).toMatchObject({ action: "save", path: "q", previousSql: "select old" });
+  });
+
+  it("export works with hand-made names containing spaces", async () => {
+    put("My Report.sql", "R");
+    const res = await app.inject({ method: "GET", url: "/api/export.zip" });
+    expect(res.statusCode).toBe(200);
+    expect(new AdmZip(res.rawPayload).readAsText("My Report.sql")).toBe("R");
+  });
+
   it("PUT with traversal is 400", async () => {
     const res = await app.inject({ method: "PUT", url: "/api/queries/..%2F..%2Fetc", payload: { sql: "x" } });
     expect(res.statusCode).toBe(400);

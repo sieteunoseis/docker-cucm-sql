@@ -57,7 +57,9 @@ export const api = {
 
   getTree: () => apiFetch<{ tree: TreeNode[] }>("/api/queries"),
   readQuery: (path: string) => apiFetch<{ path: string; sql: string }>(`/api/queries/${encodePath(path)}`),
-  saveQuery: (path: string, sql: string) => apiFetch<{ path: string }>(`/api/queries/${encodePath(path)}`, json("PUT", { sql })),
+  /** create: refuse (409) instead of replacing an existing query */
+  saveQuery: (path: string, sql: string, opts: { create?: boolean } = {}) =>
+    apiFetch<{ path: string }>(`/api/queries/${encodePath(path)}${opts.create ? "?create=1" : ""}`, json("PUT", { sql })),
   moveQuery: (from: string, to: string) => apiFetch<{ path: string }>("/api/queries/move", json("POST", { from, to })),
   duplicateQuery: (from: string, to: string) => apiFetch<{ path: string }>("/api/queries/duplicate", json("POST", { from, to })),
   deleteQuery: (path: string) => apiFetch<{ deleted: string[] }>(`/api/queries/${encodePath(path)}`, { method: "DELETE" }),

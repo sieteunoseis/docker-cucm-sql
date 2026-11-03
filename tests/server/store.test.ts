@@ -60,6 +60,44 @@ describe("QueryStore.tree", () => {
   });
 });
 
+describe("hand-made names with spaces and special characters", () => {
+  it("opens, renames and deletes a file whose name has spaces", async () => {
+    put("My Report.sql", "R");
+    put("My Folder/q.sql", "Q");
+    expect((await store.tree()).map((n) => n.path)).toEqual(["My Folder", "My Report"]);
+    expect(await store.read("My Report")).toBe("R");
+    expect(await store.read("My Folder/q")).toBe("Q");
+    await store.move("My Report", "Renamed");
+    expect(await store.read("Renamed")).toBe("R");
+    expect(Object.keys((await store.remove("My Folder")).deletedSql)).toEqual(["My Folder/q"]);
+  });
+
+  it("still finds a file by its sanitized name (old links)", async () => {
+    put("My_Folder/q.sql", "x");
+    expect(await store.read("My Folder/q")).toBe("x");
+  });
+
+  it("overwriting an existing name with spaces keeps the same file", async () => {
+    put("My Report.sql", "old");
+    expect(await store.write("My Report", "new")).toBe("My Report");
+    expect(readFileSync(path.join(dir, "My Report.sql"), "utf8")).toBe("new");
+    expect(existsSync(path.join(dir, "My_Report.sql"))).toBe(false);
+  });
+
+  it("new names are sanitized", async () => {
+    expect(await store.write("New Folder/a b", "x")).toBe("New_Folder/a_b");
+  });
+
+  it("rejects a .sql symlink that points outside the data dir", async () => {
+    const outside = mkdtempSync(path.join(tmpdir(), "outside-"));
+    writeFileSync(path.join(outside, "secret"), "select secret");
+    symlinkSync(path.join(outside, "secret"), path.join(dir, "leak.sql"));
+    expect(await code(store.read("leak"))).toBe("invalid");
+    expect(await code(store.write("leak", "x"))).toBe("invalid");
+    expect(readFileSync(path.join(outside, "secret"), "utf8")).toBe("select secret");
+  });
+});
+
 describe("QueryStore.read/write", () => {
   it("read strips BOM and preserves CRLF", async () => {
     put("q.sql", "﻿SELECT 1\r\nFROM x");
@@ -82,6 +120,12 @@ describe("QueryStore.read/write", () => {
     await store.write("A/b", "new");
     expect(readFileSync(path.join(dir, "A/b.SQL"), "utf8")).toBe("new");
     expect(existsSync(path.join(dir, "A/b.sql"))).toBe(false);
+  });
+
+  it("write with create flag refuses an existing query", async () => {
+    put("a.sql", "A");
+    expect(await code(store.write("a", "B", { create: true }))).toBe("exists");
+    expect(await store.read("a")).toBe("A");
   });
 
   it("not_found on missing read", async () => {

@@ -128,8 +128,8 @@ export function EditorPage() {
   }, [url.autorun, url.path, loaded, selected, doRun]);
 
   const saveTo = useCallback(
-    async (path: string) => {
-      const res = await api.saveQuery(path, sql);
+    async (path: string, overwrite = true) => {
+      const res = await api.saveQuery(path, sql, { create: !overwrite });
       const saved = await api.readQuery(res.path);
       setSql(saved.sql);
       setLoaded(saved);

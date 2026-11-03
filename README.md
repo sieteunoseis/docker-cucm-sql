@@ -42,6 +42,11 @@ A new named volume starts with the example queries from this repo's [`data/`](da
 ### Upgrading from 0.x
 
 - **The image has moved** from Docker Hub (`sieteunoseis/cucm-sql-editor`) to GHCR (`ghcr.io/sieteunoseis/docker-cucm-sql`). The Docker Hub image is no longer updated.
+- **The container now runs as UID 1000 instead of root.** If your data volume was created by 0.x, give it to UID 1000 once, or saving queries and the activity log will fail. The container prints this same warning at startup when the folder isn't writable:
+  ```bash
+  docker run --rm -v cucm-sql-data:/d alpine chown -R 1000:1000 /d   # named volume
+  sudo chown -R 1000:1000 ./data                                      # bind mount
+  ```
 - **Your existing `.env` works unchanged.** The `CUCM_*` variables become the default cluster.
 - **Your existing `data/*.sql` files show up as they are**, at the top level of the query list. Nothing is rewritten or moved.
 - **The 0.x API routes still work**: `/api/getdata`, `/api/getfiles`, `/api/getquery/:name` and `/api/savequery`.
@@ -61,7 +66,7 @@ Configuration is environment variables only.
 | `QUERY_TIMEOUT` | `60` | Seconds before a cluster's request is abandoned |
 | `MAX_BATCHES` | `200` | Most `SKIP/FIRST` batches one "fetch all" may send |
 | `LOG_RETENTION_MONTHS` | `12` | Months of activity log kept |
-| `API_KEY` | | When set, `/api/run` requires `Authorization: Bearer <key>` unless a `Remote-User` header is present |
+| `API_KEY` | | When set, every `/api/run` call must send `Authorization: Bearer <key>` |
 | `DATA_DIR` | `/app/data` | Folder holding queries and logs |
 | `PORT` | `3000` | HTTP port |
 
@@ -91,6 +96,8 @@ Each cluster's id is its name as a slug (`Production` → `production`). That id
 - Spaces and the characters `\ ? % * : | " < >` in names become `_`.
 - Files and folders starting with `.` are hidden from the list.
 - An optional first line `-- description: …` is shown under the query's name in the sidebar.
+- Names you create are cleaned up as described above. Files made by hand with spaces or other special characters still open, rename and delete normally.
+- **Saving under a name that's already taken asks before replacing it.** The Log keeps the replaced SQL, and **Restore previous version** opens it in the editor.
 - Saving runs the SQL formatter. Variables and `::` casts are left exactly as written.
 - **Deletes are permanent.** The activity log keeps the deleted SQL, and the Log page has a **Restore** button that opens it in the editor.
 
@@ -146,7 +153,7 @@ curl -H "Authorization: Bearer $API_KEY" \
   - `413` means the result is over UCM's 8 MB limit. This endpoint never batches.
 - **Logging:** every call is recorded in the activity log with source `api`.
 
-**Behind Authelia:** scripts can't complete Authelia's login, so add an Authelia `bypass` rule for `^/api/run/` on this host. Then set `API_KEY` so the bypassed endpoint isn't open to everyone.
+**Behind Authelia:** scripts can't complete Authelia's login, so add an Authelia `bypass` rule for `^/api/run/` on this host. Then set `API_KEY` so the bypassed endpoint isn't open to everyone. When `API_KEY` is set it's required even if a `Remote-User` header is present, because a client can send that header itself. When the app runs behind a proxy, don't also publish port 3000, which would bypass Authelia.
 
 Full API documentation (Swagger) is at `/api/docs`.
 

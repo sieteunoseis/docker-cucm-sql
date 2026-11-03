@@ -52,7 +52,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     config,
     runner,
     onRun: async ({ req, sql, path: queryPath, results }) => {
-      await log.append({
+      // a log that can't be written must not hide query results
+      await log
+        .append({
         user: identityFrom(req.headers),
         action: "run",
         source: "ui",
@@ -65,7 +67,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
           durationMs: r.durationMs,
           ...(r.error ? { error: r.error } : {}),
         })),
-      });
+        })
+        .catch((err) => console.error(`Activity log write failed: ${(err as Error).message}`));
     },
   });
   await app.register(logRoutes, { log });

@@ -50,6 +50,8 @@ export interface LogEntry {
   to?: string;
   sql?: string;
   deletedSql?: Record<string, string>;
+  /** SQL a save replaced, so an overwrite can be undone from the Log page */
+  previousSql?: string;
   clusters?: { id: string; status: string; rowCount: number; durationMs: number; error?: string }[];
 }
 

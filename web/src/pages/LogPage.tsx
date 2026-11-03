@@ -86,6 +86,11 @@ function EntryRow({ e }: { e: LogEntry }) {
       </td>
       <td className="max-w-xl px-2 py-1.5">
         {e.sql && <SqlCell sql={e.sql} />}
+        {e.previousSql !== undefined && (
+          <Button size="xs" variant="outline" onClick={() => openInEditor(e.id, e.previousSql!)}>
+            <ExternalLink className="size-3" /> Restore previous version
+          </Button>
+        )}
         {deleted.length > 0 && (
           <div className="space-y-1">
             {deleted.map(([p, sql], i) => (

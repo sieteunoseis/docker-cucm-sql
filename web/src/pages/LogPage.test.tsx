@@ -57,4 +57,16 @@ describe("LogPage", () => {
     expect(sessionStorage.getItem("cucm-sql:open:e1")).toBe("select e1 from device");
     expect(open).toHaveBeenCalledWith("/?open=e1", "_blank");
   });
+
+  it("offers to restore the SQL a save replaced", async () => {
+    vi.spyOn(api, "getLog").mockResolvedValue({
+      entries: [entry("s1", { action: "save", sql: undefined, path: "q", clusters: undefined, previousSql: "select old" })],
+      nextCursor: null,
+    });
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: /Restore previous version/ }));
+    expect(sessionStorage.getItem("cucm-sql:open:s1")).toBe("select old");
+    expect(open).toHaveBeenCalledWith("/?open=s1", "_blank");
+  });
 });
