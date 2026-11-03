@@ -10,18 +10,23 @@ import { ClusterRunner } from "./axl.js";
 import { ActivityLog } from "./activityLog.js";
 import { identityFrom } from "./identity.js";
 import { logRoutes } from "./routes/log.js";
+import { queriesRoutes } from "./routes/queries.js";
+import { legacyRoutes } from "./routes/legacy.js";
+import { QueryStore } from "./store.js";
 import path from "node:path";
 
 export interface AppDeps {
   config: AppConfig;
   runner?: ClusterRunner;
   log?: ActivityLog;
+  store?: QueryStore;
   webDist?: string;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const { config } = deps;
   const runner = deps.runner ?? new ClusterRunner(config.clusters, config.queryTimeoutMs);
+  const store = deps.store ?? new QueryStore(config.dataDir);
   const log = deps.log ?? new ActivityLog(path.join(config.dataDir, ".logs"), config.logRetentionMonths);
   const app = Fastify({ logger: false });
 
@@ -62,6 +67,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     },
   });
   await app.register(logRoutes, { log });
+  await app.register(queriesRoutes, { store, log });
+  await app.register(legacyRoutes, { config, runner, store });
 
   const hasWeb = deps.webDist && existsSync(deps.webDist);
   if (hasWeb) {
