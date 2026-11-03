@@ -37,7 +37,8 @@ export function EditorPage() {
   const url = useUrlState();
   const { tree, refresh } = useQueryTree();
   const { toggle: toggleTheme } = useTheme();
-  const run = useRun();
+  const [maxBatches, setMaxBatches] = useState(200);
+  const run = useRun({ maxBatches });
 
   const [clusters, setClusters] = useState<PublicCluster[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -54,6 +55,10 @@ export function EditorPage() {
   const flash = useCallback((msg: string) => {
     setNotice(msg);
     setTimeout(() => setNotice(null), 2500);
+  }, []);
+
+  useEffect(() => {
+    api.getInfo().then((info) => setMaxBatches(info.maxBatches)).catch(() => {});
   }, []);
 
   // clusters: URL selection if valid, else the default (first)
@@ -263,7 +268,7 @@ export function EditorPage() {
             {notice ?? "Ctrl+Enter run · Ctrl+S save · Ctrl+K search"}
           </span>
         </div>
-        <ResultsPanel run={run} sql={resolveVariables(sql, vars)} clusters={clusters} queryName={loaded?.path ?? null} />
+        <ResultsPanel run={run} clusters={clusters} queryName={loaded?.path ?? null} />
       </div>
       {saveOpen && <SaveDialog tree={tree} initialFolder={folderOf(loaded?.path ?? null)} onSave={saveTo} onClose={() => setSaveOpen(false)} />}
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} tree={tree} actions={actions} onOpenQuery={openQuery} />
