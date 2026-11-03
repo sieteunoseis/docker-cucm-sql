@@ -7,7 +7,7 @@ export interface Throttle {
 }
 
 export function parseThrottle(message: string): Throttle | null {
-  const m = /Total rows matched:\s*(\d+).*?Suggested row fetch:\s*less than\s*(\d+)/is.exec(message);
+  const m = /Total rows matched:\s*(\d+).*?Sugges\w*\s+row\s+fetch:\s*less than\s*(\d+)/is.exec(message);
   return m ? { totalRows: Number(m[1]), suggestedRows: Number(m[2]) } : null;
 }
 

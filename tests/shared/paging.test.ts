@@ -11,6 +11,12 @@ describe("parseThrottle", () => {
     expect(batchSize(t!)).toBe(168);
   });
 
+  it("parses the CUCM 15 'Suggestive Row Fetch' wording", () => {
+    expect(
+      parseThrottle("Query request too large. Total rows matched: 38558 rows. Suggestive Row Fetch: less than 896 rows"),
+    ).toEqual({ totalRows: 38558, suggestedRows: 896 });
+  });
+
   it("returns null for other errors", () => {
     expect(parseThrottle("A syntax error has occurred.")).toBeNull();
   });
