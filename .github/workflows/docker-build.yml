@@ -1,107 +1,138 @@
 name: Build and Push Docker Image
 
+# main  → ghcr.io/<repo>:main            (testing; watchtower on prod does not follow it)
+# v*    → ghcr.io/<repo>:latest + :X.Y.Z (release; this is what prod pulls)
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    tags: ["v*"]
     paths-ignore:
-      # Documentation and markdown files
-      - '**/*.md'
-      - 'docs/**'
-      
-      # Images
-      - 'screenshots/**'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.webp'
-      
-      # Configuration files that don't affect the build
-      - '.gitignore'
-      - '.dockerignore'
-      - '*.example'
-      
-      # Environment files
-      - 'env/**'
-
+      - "**/*.md"
+      - "docs/**"
+      - "screenshots/**"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.jpeg"
+      - "**/*.gif"
+      - "**/*.svg"
+      - "**/*.webp"
+      - ".gitignore"
+      - ".dockerignore"
+      - "*.example"
+      - "env/**"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+      - run: npm ci
+      - run: npm --prefix web ci
+      - run: npx tsc -p . --noEmit
+      - run: npm --prefix web run lint
+      - run: npm test
+
   build:
+    needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       security-events: write # needed for vulnerability scanning
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Get package version
         id: package-version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-      
+          if [ "${GITHUB_REF_NAME#v}" != "${{ steps.package-version.outputs.version }}" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version ${{ steps.package-version.outputs.version }}"
+            exit 1
+          fi
+
+      - name: Image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=Cisco CUCM SQL Editor
+            org.opencontainers.image.description=Web application for executing and managing SQL queries against Cisco CUCM databases
+
       # Scan for vulnerabilities in dependencies
       - name: Run Dependency Scan
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+
       - name: Upload Scan Results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always() # Ensure this runs even if previous step fails
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
-          category: 'dependency-scan'
-      
-      # Only push to GitHub Container Registry since it doesn't require additional secrets
+          sarif_file: "trivy-results.sarif"
+          category: "dependency-scan"
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.package-version.outputs.version }}
-          labels: |
-            org.opencontainers.image.title=Cisco CUCM SQL Editor
-            org.opencontainers.image.description=Web application for executing and managing SQL queries against Cisco CUCM databases
-            org.opencontainers.image.version=${{ steps.package-version.outputs.version }}
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-      
+          build-args: |
+            IMAGE_TAG=${{ steps.meta.outputs.version }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
       # Scan the built image for vulnerabilities
       - name: Scan Container Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/${{ github.repository }}:${{ steps.package-version.outputs.version }}'
-          format: 'sarif'
-          output: 'trivy-image-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          
+          image-ref: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+          severity: "CRITICAL,HIGH"
+
       - name: Upload Image Scan Results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always() # Ensure this runs even if previous step fails
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
-          sarif_file: 'trivy-image-results.sarif'
-          category: 'container-scan'
+          sarif_file: "trivy-image-results.sarif"
+          category: "container-scan"
