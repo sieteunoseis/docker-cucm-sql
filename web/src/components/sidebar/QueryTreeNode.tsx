@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { ChevronRight, FileCode, Folder, FolderOpen, MoreHorizontal } from "lucide-react";
 import type { TreeNode } from "@shared/types";
 import { cn } from "@/lib/utils";
@@ -26,10 +27,17 @@ export function QueryTreeNode(props: Props) {
   const isFolder = node.type === "folder";
   const expanded = isFolder && isExpanded(node.path);
   const selected = node.path === selectedPath;
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  // keep the open query visible in the sidebar's scroll area
+  useEffect(() => {
+    if (selected) rowRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [selected]);
 
   return (
     <li>
       <div
+        ref={rowRef}
         data-testid="tree-row"
         data-path={node.path}
         className={cn(

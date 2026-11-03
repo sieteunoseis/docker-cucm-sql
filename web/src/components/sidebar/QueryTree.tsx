@@ -58,7 +58,7 @@ export function QueryTree({ tree, selectedPath, onOpen, onChanged, onMoved, onDe
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex h-full flex-col gap-2">
       <div className="flex items-center gap-1">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -78,7 +78,7 @@ export function QueryTree({ tree, selectedPath, onOpen, onChanged, onMoved, onDe
       {visible.length === 0 ? (
         <p className="px-1 text-sm text-muted-foreground">{q ? "No matching queries" : "No saved queries yet"}</p>
       ) : (
-        <ul>
+        <ul className="-mr-2 min-h-0 flex-1 overflow-y-auto pr-2">
           {visible.map((n) => (
             <QueryTreeNode
               key={n.path}

@@ -211,7 +211,8 @@ export function EditorPage() {
 
   return (
     <div className="flex gap-6">
-      <aside className="w-64 shrink-0">
+      {/* own scroll area, pinned while the editor/results scroll: header + page padding ≈ 7rem */}
+      <aside className="sticky top-6 h-[calc(100vh-7rem)] w-64 shrink-0 self-start">
         <QueryTree
           tree={tree}
           selectedPath={loaded?.path ?? null}

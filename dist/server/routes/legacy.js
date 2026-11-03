@@ -12,7 +12,7 @@ export async function legacyRoutes(app, opts) {
     app.get("/api/getfiles", async () => (await store.tree()).filter((n) => n.type === "query").map((n) => `${n.name}.sql`).sort((a, b) => a.localeCompare(b)));
     app.get("/api/getquery/:name", async (req, reply) => {
         try {
-            return { fileName: req.params.name, data: await store.read(store.sanitizePath(req.params.name)) };
+            return { fileName: req.params.name, data: await store.read(store.checkPath(req.params.name)) };
         }
         catch {
             return reply.code(500).send({ message: "No file found" });

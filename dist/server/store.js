@@ -19,29 +19,39 @@ export class QueryStore {
     constructor(dataDir) {
         this.dataDir = dataDir;
     }
-    sanitizePath(input) {
+    /** Validates a path for lookup: no traversal, no hidden segments. Names are kept exactly as given. */
+    checkPath(input) {
         const segments = input.replace(SQL_EXT, "").split("/");
-        if (input.startsWith("/") || segments.some((s) => s === "")) {
+        if (input.startsWith("/") || segments.some((s) => s === "" || s === "." || s === ".." || s.startsWith("."))) {
             throw new StoreError("invalid", `Invalid path "${input}"`);
         }
-        const clean = segments.map((s) => s.replace(UNSAFE, "_"));
-        if (clean.some((s) => s === "." || s === ".." || s.startsWith("."))) {
+        return segments.join("/");
+    }
+    /** Path for a name being created: checkPath plus the 0.x character rule (spaces etc. → _). */
+    sanitizePath(input) {
+        const clean = this.checkPath(input)
+            .split("/")
+            .map((s) => s.replace(UNSAFE, "_"));
+        if (clean.some((s) => s.startsWith(".")))
             throw new StoreError("invalid", `Invalid path "${input}"`);
-        }
         return clean.join("/");
     }
-    /** Absolute path for a query path, verified (via realpath of the nearest existing ancestor) to stay inside dataDir. */
-    async resolve(p, suffix = "") {
-        const rel = this.sanitizePath(p);
-        const root = await fs.realpath(this.dataDir);
-        const abs = path.join(root, rel + suffix);
+    async root() {
+        return fs.realpath(this.dataDir);
+    }
+    async assertInside(real, p) {
+        const root = await this.root();
+        if (real !== root && !real.startsWith(root + path.sep)) {
+            throw new StoreError("invalid", `Path "${p}" is outside the data directory`);
+        }
+    }
+    /** Absolute path for a checked relative path, verified (via realpath of the nearest existing ancestor) to stay inside dataDir. */
+    async resolve(rel, suffix = "") {
+        const abs = path.join(await this.root(), rel + suffix);
         let probe = abs;
         for (;;) {
             try {
-                const real = await fs.realpath(probe);
-                if (real !== root && !real.startsWith(root + path.sep)) {
-                    throw new StoreError("invalid", `Path "${p}" is outside the data directory`);
-                }
+                await this.assertInside(await fs.realpath(probe), rel);
                 return abs;
             }
             catch (e) {
@@ -54,23 +64,27 @@ export class QueryStore {
             }
         }
     }
-    /** Existing file for a query path, honouring any extension case (.sql / .SQL). */
-    async queryFile(p) {
-        const base = await this.resolve(p);
-        const dir = path.dirname(base);
-        const name = path.basename(base);
+    /** Existing file for an exact relative path, honouring any extension case (.sql / .SQL). */
+    async fileAt(rel) {
+        const base = await this.resolve(rel);
         let entries;
         try {
-            entries = await fs.readdir(dir);
+            entries = await fs.readdir(path.dirname(base));
         }
         catch {
             return null;
         }
+        const name = path.basename(base);
         const hit = entries.find((e) => SQL_EXT.test(e) && e.replace(SQL_EXT, "") === name);
-        return hit ? path.join(dir, hit) : null;
+        if (!hit)
+            return null;
+        const file = path.join(path.dirname(base), hit);
+        // the file itself may be a symlink pointing outside the data dir
+        await this.assertInside(await fs.realpath(file), rel);
+        return file;
     }
-    async folderDir(p) {
-        const abs = await this.resolve(p);
+    async dirAt(rel) {
+        const abs = await this.resolve(rel);
         try {
             return (await fs.stat(abs)).isDirectory() ? abs : null;
         }
@@ -78,8 +92,29 @@ export class QueryStore {
             return null;
         }
     }
-    async exists(p) {
-        return (await this.queryFile(p)) !== null || (await this.folderDir(p)) !== null;
+    /**
+     * Finds an existing query or folder: first by the exact name (hand-made files may contain spaces),
+     * then by its sanitized form (how saved names and old links spell it).
+     */
+    async locate(p) {
+        const candidates = [...new Set([this.checkPath(p), this.sanitizePath(p)])];
+        for (const rel of candidates) {
+            const file = await this.fileAt(rel);
+            if (file)
+                return { rel, file, dir: null };
+            const dir = await this.dirAt(rel);
+            if (dir)
+                return { rel, file: null, dir };
+        }
+        return null;
+    }
+    /** Relative path of an existing query, or null. */
+    async find(p) {
+        const hit = await this.locate(p);
+        return hit?.file ? hit.rel : null;
+    }
+    async exists(rel) {
+        return (await this.fileAt(rel)) !== null || (await this.dirAt(rel)) !== null;
     }
     async tree() {
         const walk = async (abs, rel) => {
@@ -108,50 +143,62 @@ export class QueryStore {
         return walk(this.dataDir, "");
     }
     async read(p) {
-        const file = await this.queryFile(p);
-        if (!file)
+        const hit = await this.locate(p);
+        if (!hit?.file)
             throw new StoreError("not_found", `Query "${p}" not found`);
-        return (await fs.readFile(file, "utf8")).replace(/^﻿/, "");
+        return (await fs.readFile(hit.file, "utf8")).replace(/^\uFEFF/, "");
     }
-    async write(p, sql) {
-        const file = (await this.queryFile(p)) ?? (await this.resolve(p, ".sql"));
+    /**
+     * Saves a query and returns the path it was saved at. An existing query (found by exact or
+     * sanitized name) is overwritten in place unless create is set; new names are sanitized.
+     */
+    async write(p, sql, opts = {}) {
+        const hit = await this.locate(p);
+        if (hit && (opts.create || !hit.file))
+            throw new StoreError("exists", `"${hit.rel}" already exists`);
+        const rel = hit?.rel ?? this.sanitizePath(p);
+        const file = hit?.file ?? (await this.resolve(rel, ".sql"));
         await fs.mkdir(path.dirname(file), { recursive: true });
         await fs.writeFile(file, sql);
+        return rel;
     }
     async move(from, to) {
-        const src = (await this.queryFile(from)) ?? (await this.folderDir(from));
+        const src = await this.locate(from);
         if (!src)
             throw new StoreError("not_found", `"${from}" not found`);
-        if (await this.exists(to))
-            throw new StoreError("exists", `"${to}" already exists`);
-        const isFile = !(await fs.stat(src)).isDirectory();
-        const dest = await this.resolve(to, isFile ? path.extname(src) : "");
-        if (!isFile && (dest + path.sep).startsWith(src + path.sep)) {
+        const destRel = this.sanitizePath(to);
+        if (await this.exists(destRel))
+            throw new StoreError("exists", `"${destRel}" already exists`);
+        const srcPath = (src.file ?? src.dir);
+        const dest = await this.resolve(destRel, src.file ? path.extname(src.file) : "");
+        if (src.dir && (dest + path.sep).startsWith(src.dir + path.sep)) {
             throw new StoreError("invalid", `Can't move "${from}" into itself`);
         }
         await fs.mkdir(path.dirname(dest), { recursive: true });
-        await fs.rename(src, dest);
+        await fs.rename(srcPath, dest);
+        return destRel;
     }
     async duplicate(from, to) {
-        const src = await this.queryFile(from);
-        if (!src)
+        const src = await this.locate(from);
+        if (!src?.file)
             throw new StoreError("not_found", `Query "${from}" not found`);
-        if (await this.exists(to))
-            throw new StoreError("exists", `"${to}" already exists`);
-        const dest = await this.resolve(to, ".sql");
+        const destRel = this.sanitizePath(to);
+        if (await this.exists(destRel))
+            throw new StoreError("exists", `"${destRel}" already exists`);
+        const dest = await this.resolve(destRel, ".sql");
         await fs.mkdir(path.dirname(dest), { recursive: true });
-        await fs.copyFile(src, dest);
+        await fs.copyFile(src.file, dest);
+        return destRel;
     }
     async remove(p) {
-        const file = await this.queryFile(p);
-        if (file) {
-            const sql = await this.read(p);
-            await fs.unlink(file);
-            return { deletedSql: { [this.sanitizePath(p)]: sql } };
-        }
-        const dir = await this.folderDir(p);
-        if (!dir)
+        const hit = await this.locate(p);
+        if (!hit)
             throw new StoreError("not_found", `"${p}" not found`);
+        if (hit.file) {
+            const sql = (await fs.readFile(hit.file, "utf8")).replace(/^\uFEFF/, "");
+            await fs.unlink(hit.file);
+            return { deletedSql: { [hit.rel]: sql } };
+        }
         const deletedSql = {};
         const collect = async (abs, rel) => {
             for (const e of await fs.readdir(abs, { withFileTypes: true })) {
@@ -159,23 +206,28 @@ export class QueryStore {
                 if (e.isDirectory())
                     await collect(path.join(abs, e.name), childRel);
                 else if (SQL_EXT.test(e.name)) {
-                    deletedSql[childRel.replace(SQL_EXT, "")] = (await fs.readFile(path.join(abs, e.name), "utf8")).replace(/^﻿/, "");
+                    deletedSql[childRel.replace(SQL_EXT, "")] = (await fs.readFile(path.join(abs, e.name), "utf8")).replace(/^\uFEFF/, "");
                 }
             }
         };
-        await collect(dir, this.sanitizePath(p));
-        await fs.rm(dir, { recursive: true });
+        await collect(hit.dir, hit.rel);
+        await fs.rm(hit.dir, { recursive: true });
         return { deletedSql };
     }
     async createFolder(p) {
-        if (await this.exists(p))
-            throw new StoreError("exists", `"${p}" already exists`);
-        await fs.mkdir(await this.resolve(p), { recursive: true });
+        const rel = this.sanitizePath(p);
+        if (await this.exists(rel))
+            throw new StoreError("exists", `"${rel}" already exists`);
+        await fs.mkdir(await this.resolve(rel), { recursive: true });
+        return rel;
     }
     async countQueries(p) {
-        const dir = await this.folderDir(p);
-        if (!dir)
-            return (await this.queryFile(p)) ? 1 : 0;
+        const hit = await this.locate(p);
+        if (!hit)
+            return 0;
+        if (hit.file)
+            return 1;
+        const dir = hit.dir;
         const entries = await fs.readdir(dir, { recursive: true });
         return entries.filter((e) => SQL_EXT.test(e) && !e.split(path.sep).some((s) => s.startsWith("."))).length;
     }

@@ -14,24 +14,32 @@ function queryPaths(nodes) {
 }
 export async function queriesRoutes(app, opts) {
     const { store, log } = opts;
-    const record = (req, e) => log.append({ user: identityFrom(req.headers), source: "ui", ...e });
+    // a log that can't be written (e.g. read-only volume) must not fail the user's action
+    const record = (req, e) => log.append({ user: identityFrom(req.headers), source: "ui", ...e }).catch((err) => {
+        console.error(`Activity log write failed: ${err.message}`);
+    });
     app.get("/api/queries", async () => ({ tree: await store.tree() }));
     app.get("/api/queries/*", async (req, reply) => {
         try {
-            const p = store.sanitizePath(req.params["*"]);
-            return { path: p, sql: await store.read(p) };
+            const found = await store.find(req.params["*"]);
+            if (!found)
+                throw new StoreError("not_found", `Query "${req.params["*"]}" not found`);
+            return { path: found, sql: await store.read(found) };
         }
         catch (err) {
             return sendStoreError(reply, err);
         }
     });
+    // ?create=1: refuse to replace an existing query (Save / Save as dialogs); plain PUT overwrites
     app.put("/api/queries/*", async (req, reply) => {
         if (typeof req.body?.sql !== "string")
             return reply.code(400).send({ error: "invalid", message: "sql is required" });
         try {
-            const p = store.sanitizePath(req.params["*"]);
-            await store.write(p, formatForSave(req.body.sql));
-            await record(req, { action: "save", path: p });
+            const create = req.query.create === "1";
+            const existing = create ? null : await store.find(req.params["*"]);
+            const previousSql = existing ? await store.read(existing) : undefined;
+            const p = await store.write(req.params["*"], formatForSave(req.body.sql), { create });
+            await record(req, { action: "save", path: p, ...(previousSql !== undefined ? { previousSql } : {}) });
             return { path: p };
         }
         catch (err) {
@@ -44,9 +52,8 @@ export async function queriesRoutes(app, opts) {
             if (!from || !to)
                 return reply.code(400).send({ error: "invalid", message: "from and to are required" });
             try {
-                const src = store.sanitizePath(from);
-                const dest = store.sanitizePath(to);
-                await (action === "move" ? store.move(src, dest) : store.duplicate(src, dest));
+                const src = store.checkPath(from);
+                const dest = await (action === "move" ? store.move(src, to) : store.duplicate(src, to));
                 await record(req, { action, path: src, to: dest });
                 return { path: dest };
             }
@@ -57,7 +64,7 @@ export async function queriesRoutes(app, opts) {
     }
     app.delete("/api/queries/*", async (req, reply) => {
         try {
-            const p = store.sanitizePath(req.params["*"]);
+            const p = store.checkPath(req.params["*"]);
             const { deletedSql } = await store.remove(p);
             await record(req, { action: "delete", path: p, deletedSql });
             return { deleted: Object.keys(deletedSql) };
@@ -68,7 +75,7 @@ export async function queriesRoutes(app, opts) {
     });
     app.get("/api/queries-count/*", async (req, reply) => {
         try {
-            return { count: await store.countQueries(store.sanitizePath(req.params["*"])) };
+            return { count: await store.countQueries(store.checkPath(req.params["*"])) };
         }
         catch (err) {
             return sendStoreError(reply, err);
@@ -78,8 +85,7 @@ export async function queriesRoutes(app, opts) {
         if (!req.body?.path)
             return reply.code(400).send({ error: "invalid", message: "path is required" });
         try {
-            const p = store.sanitizePath(req.body.path);
-            await store.createFolder(p);
+            const p = await store.createFolder(req.body.path);
             await record(req, { action: "folder_create", path: p });
             return { path: p };
         }

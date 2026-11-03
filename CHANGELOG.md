@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.2] - 2026-11-03
+
+### Changed
+- The saved-query list scrolls on its own and stays pinned while the editor and results scroll; the open query is kept in view
+
 ## [1.0.1] - 2026-11-03
 
 ### Fixed

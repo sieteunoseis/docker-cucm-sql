@@ -3,6 +3,7 @@ import { identityFrom } from "../identity.js";
 import { resolveVariables, missingVariables } from "../../shared/variables.js";
 import { toCsv } from "../../shared/csv.js";
 import { sendStoreError } from "./queries.js";
+import { StoreError } from "../store.js";
 function keyMatches(header, apiKey) {
     const given = Buffer.from(header?.replace(/^Bearer\s+/i, "") ?? "");
     const expected = Buffer.from(apiKey);
@@ -11,19 +12,22 @@ function keyMatches(header, apiKey) {
 export async function runRoutes(app, opts) {
     const { config, runner, store, log } = opts;
     app.get("/api/run/*", async (req, reply) => {
-        let user = identityFrom(req.headers);
-        if (config.apiKey && !req.headers["remote-user"]) {
-            if (!keyMatches(req.headers.authorization, config.apiKey)) {
-                return reply.code(401).send({ error: "unauthorized", message: "Missing or invalid API key" });
-            }
-            user = "api-key";
+        // When API_KEY is set it is always required: Remote-User is only trustworthy if the proxy
+        // overwrites it, and /api/run is usually exempted from Authelia for scripts.
+        if (config.apiKey && !keyMatches(req.headers.authorization, config.apiKey)) {
+            return reply.code(401).send({ error: "unauthorized", message: "Missing or invalid API key" });
         }
+        const identity = identityFrom(req.headers);
+        const user = identity === "anonymous" && config.apiKey ? "api-key" : identity;
         const { cluster, format = "json", ...vars } = req.query;
         let queryPath;
         let saved;
         try {
-            queryPath = store.sanitizePath(req.params["*"]);
-            saved = await store.read(queryPath);
+            const found = await store.find(req.params["*"]);
+            if (!found)
+                throw new StoreError("not_found", `Query "${req.params["*"]}" not found`);
+            queryPath = found;
+            saved = await store.read(found);
         }
         catch (err) {
             return sendStoreError(reply, err);
@@ -46,7 +50,9 @@ export async function runRoutes(app, opts) {
             durationMs: r.durationMs,
             ...(r.error ? { error: r.error } : {}),
         }));
-        await log.append({ user, action: "run", source: "api", path: queryPath, sql, clusters: summary });
+        await log
+            .append({ user, action: "run", source: "api", path: queryPath, sql, clusters: summary })
+            .catch((err) => console.error(`Activity log write failed: ${err.message}`));
         const throttled = results.filter((r) => r.throttle);
         if (throttled.length) {
             return reply.code(413).send({
