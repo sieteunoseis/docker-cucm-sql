@@ -5,14 +5,18 @@ import fastifySwaggerUi from "@fastify/swagger-ui";
 import { existsSync } from "node:fs";
 import type { AppConfig } from "./config.js";
 import { metaRoutes } from "./routes/meta.js";
+import { queryRoutes } from "./routes/query.js";
+import { ClusterRunner } from "./axl.js";
 
 export interface AppDeps {
   config: AppConfig;
+  runner?: ClusterRunner;
   webDist?: string;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const { config } = deps;
+  const runner = deps.runner ?? new ClusterRunner(config.clusters, config.queryTimeoutMs);
   const app = Fastify({ logger: false });
 
   await app.register(fastifySwagger, {
@@ -30,7 +34,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     clusterCount: config.clusters.length,
   }));
 
-  await app.register(metaRoutes, { config });
+  await app.register(metaRoutes, { config, runner });
+  await app.register(queryRoutes, { config, runner });
 
   const hasWeb = deps.webDist && existsSync(deps.webDist);
   if (hasWeb) {
