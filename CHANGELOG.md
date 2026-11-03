@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1] - 2026-11-03
+
+### Fixed
+- CI: a Trivy scanner download failure no longer blocks publishing the image (1.0.0 was never published)
+
 ## [1.0.0] - 2026-11-03
 
 A ground-up rewrite. Existing `.env` files and `data/*.sql` files work unchanged.

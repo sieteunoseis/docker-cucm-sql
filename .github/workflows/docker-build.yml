@@ -86,6 +86,8 @@ jobs:
 
       # Scan for vulnerabilities in dependencies
       - name: Run Dependency Scan
+        # scanner outages must not block a release
+        continue-on-error: true
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
@@ -96,7 +98,7 @@ jobs:
 
       - name: Upload Scan Results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: "trivy-results.sarif"
           category: "dependency-scan"
@@ -123,6 +125,8 @@ jobs:
 
       # Scan the built image for vulnerabilities
       - name: Scan Container Image
+        # scanner outages must not block a release
+        continue-on-error: true
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
@@ -132,7 +136,7 @@ jobs:
 
       - name: Upload Image Scan Results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('trivy-image-results.sarif') != ''
         with:
           sarif_file: "trivy-image-results.sarif"
           category: "container-scan"
