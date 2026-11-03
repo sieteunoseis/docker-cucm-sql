@@ -12,8 +12,10 @@ export function formatForSave(sql: string): string {
   });
   try {
     const formatted = format(masked, {
-      language: "transactsql",
+      // postgresql keeps Informix || and :: intact (transactsql splits || into | |)
+      language: "postgresql",
       keywordCase: "upper",
+      functionCase: "upper",
       linesBetweenQueries: 2,
     });
     return formatted

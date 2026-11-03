@@ -12,6 +12,12 @@ describe("formatForSave", () => {
     expect(formatForSave("select x::INTEGER from t")).toContain("::INTEGER");
   });
 
+  it("keeps the Informix || concatenation operator together", () => {
+    const out = formatForSave("select d.name from device d where d.description not like '%' || right(n.dnorpattern, 5) || '%'");
+    expect(out).toContain("'%' || RIGHT(n.dnorpattern, 5) || '%'");
+    expect(out).not.toContain("| |");
+  });
+
   it("uppercases keywords", () => {
     const out = formatForSave("select name from device");
     expect(out).toContain("SELECT");

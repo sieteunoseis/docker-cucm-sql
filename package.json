@@ -1,6 +1,6 @@
 {
   "name": "docker-cucm-sql",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "type": "module",
   "description": "Web-based SQL editor for Cisco CUCM (AXL executeSQLQuery) with multi-cluster support",

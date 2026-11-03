@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.4] - 2026-11-03
+
+### Fixed
+- Saving no longer breaks the Informix `||` string operator into `| |` (also a 0.x bug); the formatter now uses its PostgreSQL dialect
+
 ## [1.0.3] - 2026-11-03
 
 ### Fixed
