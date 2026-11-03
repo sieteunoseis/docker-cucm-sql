@@ -1,7 +1,7 @@
 // UCM caps executeSQLQuery responses at 8 MB and returns a fault with the matched row count.
 // Large results are re-fetched in Informix SELECT SKIP n FIRST m batches.
 export function parseThrottle(message) {
-    const m = /Total rows matched:\s*(\d+).*?Suggested row fetch:\s*less than\s*(\d+)/is.exec(message);
+    const m = /Total rows matched:\s*(\d+).*?Sugges\w*\s+row\s+fetch:\s*less than\s*(\d+)/is.exec(message);
     return m ? { totalRows: Number(m[1]), suggestedRows: Number(m[2]) } : null;
 }
 /** UCM's suggestion is unreliable on wide rows; a 5x margin avoids re-throttling (see axlrows). */
