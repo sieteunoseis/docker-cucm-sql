@@ -7,16 +7,22 @@ import type { AppConfig } from "./config.js";
 import { metaRoutes } from "./routes/meta.js";
 import { queryRoutes } from "./routes/query.js";
 import { ClusterRunner } from "./axl.js";
+import { ActivityLog } from "./activityLog.js";
+import { identityFrom } from "./identity.js";
+import { logRoutes } from "./routes/log.js";
+import path from "node:path";
 
 export interface AppDeps {
   config: AppConfig;
   runner?: ClusterRunner;
+  log?: ActivityLog;
   webDist?: string;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const { config } = deps;
   const runner = deps.runner ?? new ClusterRunner(config.clusters, config.queryTimeoutMs);
+  const log = deps.log ?? new ActivityLog(path.join(config.dataDir, ".logs"), config.logRetentionMonths);
   const app = Fastify({ logger: false });
 
   await app.register(fastifySwagger, {
@@ -35,7 +41,27 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   }));
 
   await app.register(metaRoutes, { config, runner });
-  await app.register(queryRoutes, { config, runner });
+  await app.register(queryRoutes, {
+    config,
+    runner,
+    onRun: async ({ req, sql, path: queryPath, results }) => {
+      await log.append({
+        user: identityFrom(req.headers),
+        action: "run",
+        source: "ui",
+        sql,
+        ...(queryPath ? { path: queryPath } : {}),
+        clusters: results.map((r) => ({
+          id: r.clusterId,
+          status: r.status,
+          rowCount: r.rowCount,
+          durationMs: r.durationMs,
+          ...(r.error ? { error: r.error } : {}),
+        })),
+      });
+    },
+  });
+  await app.register(logRoutes, { log });
 
   const hasWeb = deps.webDist && existsSync(deps.webDist);
   if (hasWeb) {
