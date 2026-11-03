@@ -2,6 +2,10 @@
 
 ## [1.0.2] - 2026-11-03
 
+### Added
+- Help page (`/help`) covering variables, links, shortcuts, large results, saved queries and the run-by-URL API
+- MIT license
+
 ### Changed
 - The saved-query list scrolls on its own and stays pinned while the editor and results scroll; the open query is kept in view
 

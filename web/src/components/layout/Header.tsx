@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 const NAV_ITEMS = [
   { label: "Editor", path: "/" },
   { label: "Log", path: "/log" },
+  { label: "Help", path: "/help" },
 ];
 
 export function Header() {
