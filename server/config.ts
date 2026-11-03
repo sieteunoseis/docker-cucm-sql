@@ -34,10 +34,11 @@ function readCluster(env: Env, prefix: string): Omit<ClusterConfig, "id"> {
   if (missing.length) {
     throw new ConfigError(`Missing environment variable(s): ${missing.join(", ")}`);
   }
-  const version = env[`${prefix}VERSION`]!;
-  // Same rule as the 0.x validator: CUCM_VERSION must be in the format of ##.#
-  if (!/^\d+\.\d+$/.test(version)) {
-    throw new ConfigError(`${prefix}VERSION must be in the format of ##.# (got "${version}")`);
+  // CUCM_VERSION must be in the format of ##.#; extra parts (12.5.1) are accepted and dropped
+  const match = /^(\d+\.\d+)(\.\d+)*$/.exec(env[`${prefix}VERSION`]!.trim());
+  const version = match?.[1];
+  if (!version) {
+    throw new ConfigError(`${prefix}VERSION must be in the format of ##.# (got "${env[`${prefix}VERSION`]}")`);
   }
   const hostname = env[`${prefix}HOSTNAME`]!;
   return {

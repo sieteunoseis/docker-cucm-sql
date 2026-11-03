@@ -57,6 +57,10 @@ describe("loadConfig", () => {
     expect(() => loadConfig({ ...legacy, CUCM_VERSION: "fourteen" }, "1.0.0")).toThrow(/##\.#/);
   });
 
+  it("three-part version is accepted and normalized to major.minor", () => {
+    expect(loadConfig({ ...legacy, CUCM_VERSION: "12.5.1" }, "1.0.0").clusters[0].version).toBe("12.5");
+  });
+
   it("defaults", () => {
     const c = loadConfig(legacy, "1.0.0");
     expect(c.queryTimeoutMs).toBe(60000);
