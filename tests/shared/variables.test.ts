@@ -21,6 +21,22 @@ describe("extractVariables", () => {
   });
 });
 
+describe("quoted defaults", () => {
+  it("allow spaces and doubled quotes", () => {
+    expect(extractVariables("where m = :mask='EXTERNAL MASK' and n = :who='O''Neil'")).toEqual([
+      { name: "mask", defaultValue: "EXTERNAL MASK" },
+      { name: "who", defaultValue: "O'Neil" },
+    ]);
+  });
+
+  it("resolve to the quoted default or the typed value", () => {
+    expect(resolveVariables("m = :mask='EXTERNAL MASK'", {})).toBe("m = 'EXTERNAL MASK'");
+    expect(resolveVariables("m = :mask='EXTERNAL MASK' or x = :mask", { mask: "5035551000" })).toBe(
+      "m = '5035551000' or x = '5035551000'",
+    );
+  });
+});
+
 describe("resolveVariables", () => {
   it("resolves with quoting", () => {
     expect(resolveVariables("a=:n", { n: "O'Neil" })).toBe("a='O''Neil'");

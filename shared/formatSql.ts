@@ -2,7 +2,7 @@ import { format } from "sql-formatter";
 
 // Variable tokens (:name, :name=default) are swapped for placeholders while formatting so the
 // formatter can't split "=default" off or space out "::" casts.
-const TOKEN_REGEX = /::[a-zA-Z_][a-zA-Z0-9_]*|:[a-zA-Z_][a-zA-Z0-9_]*(?:=[^\s,)]+)?/g;
+const TOKEN_REGEX = /::[a-zA-Z_][a-zA-Z0-9_]*|:[a-zA-Z_][a-zA-Z0-9_]*(?:=(?:'(?:[^']|'')*'|[^\s,)]+))?/g;
 
 export function formatForSave(sql: string): string {
   const tokens: string[] = [];

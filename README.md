@@ -112,6 +112,7 @@ WHERE d.pkid = m.fkdevice AND m.fknumplan = n.pkid
   AND n.dnorpattern LIKE :pattern=1234%
 ```
 
+- A default ends at a space, comma or `)`. Quote a default that has spaces: `:mask='EXTERNAL MASK'`.
 - Each variable gets an input field below the editor. A variable with no default has to be filled in before Run is enabled.
 - Values are always sent quoted, as `'value'` with any `'` doubled. Informix converts them where it compares against a number column. It can't convert them where a bare number is required, for example `FIRST :n`.
 

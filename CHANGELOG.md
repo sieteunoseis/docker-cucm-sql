@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.5] - 2026-11-03
+
+### Added
+- Quoted variable defaults for values with spaces: `:mask='EXTERNAL MASK'`
+
 ## [1.0.4] - 2026-11-03
 
 ### Fixed

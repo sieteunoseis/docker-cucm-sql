@@ -8,6 +8,10 @@ describe("formatForSave", () => {
     expect(out).toContain(":y");
   });
 
+  it("keeps quoted defaults intact", () => {
+    expect(formatForSave("select * from t where m = :mask='EXTERNAL MASK'")).toContain(":mask='EXTERNAL MASK'");
+  });
+
   it("keeps :: casts", () => {
     expect(formatForSave("select x::INTEGER from t")).toContain("::INTEGER");
   });

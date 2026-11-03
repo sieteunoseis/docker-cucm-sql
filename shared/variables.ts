@@ -1,12 +1,18 @@
 // Query variables, same syntax as cisco-cdr-ui: :name or :name=default
-// (default ends at whitespace, "," or ")"). ::type casts and tokens right after a quote are ignored.
+// (default ends at whitespace, "," or ")"), plus :name='quoted default' for values with spaces
+// (a doubled '' is a literal quote). ::type casts and tokens right after a quote are ignored.
 
 export interface VarDef {
   name: string;
   defaultValue: string;
 }
 
-const VAR_REGEX = /:([a-zA-Z_][a-zA-Z0-9_]*)(?:=([^\s,)]+))?/g;
+const VAR_REGEX = /:([a-zA-Z_][a-zA-Z0-9_]*)(?:=('(?:[^']|'')*'|[^\s,)]+))?/g;
+
+function unquote(raw: string | undefined): string {
+  if (!raw) return "";
+  return raw.startsWith("'") && raw.endsWith("'") && raw.length >= 2 ? raw.slice(1, -1).replace(/''/g, "'") : raw;
+}
 
 function isVariableAt(sql: string, index: number): boolean {
   const before = sql[index - 1];
@@ -19,7 +25,7 @@ export function extractVariables(sql: string): VarDef[] {
   for (const m of sql.matchAll(VAR_REGEX)) {
     if (!isVariableAt(sql, m.index!) || seen.has(m[1])) continue;
     seen.add(m[1]);
-    vars.push({ name: m[1], defaultValue: m[2] || "" });
+    vars.push({ name: m[1], defaultValue: unquote(m[2]) });
   }
   return vars;
 }

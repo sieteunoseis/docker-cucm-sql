@@ -60,7 +60,11 @@ export function HelpPage() {
           </p>
           <Block>{"SELECT d.name, n.dnorpattern\nFROM device d, devicenumplanmap m, numplan n\nWHERE d.pkid = m.fkdevice AND m.fknumplan = n.pkid\n  AND n.dnorpattern LIKE :pattern=1234%"}</Block>
           <ul className="list-disc space-y-1 pl-5">
-            <li>A default ends at a space, comma or <Code>)</Code>. Defaults are saved with the query.</li>
+            <li>
+              A default ends at a space, comma or <Code>)</Code>. For a default with spaces, quote it:{" "}
+              <Code>:mask='EXTERNAL MASK'</Code>. Defaults are saved with the query, so a query can keep its usual
+              value and still let people change it.
+            </li>
             <li>
               <strong>Run</strong> stays disabled until every variable without a default has a value.
             </li>
