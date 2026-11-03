@@ -69,27 +69,7 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return Promise.race([p, timeout]).finally(() => clearTimeout(timer));
 }
 
-/**
- * cisco-axl adds a "soapError" listener to its cached SOAP client on every call and never removes it,
- * so a long-running server leaks listeners (MaxListenersExceededWarning). Once no call is in flight
- * for this client, those listeners are dead and can be dropped.
- */
-export function withListenerCleanup(svc: AxlClient & { _soapClient?: { removeAllListeners?: (e: string) => void } | null }): AxlClient {
-  let inFlight = 0;
-  return {
-    async executeSqlQuery(sql: string) {
-      inFlight++;
-      try {
-        return await svc.executeSqlQuery(sql);
-      } finally {
-        if (--inFlight === 0) svc._soapClient?.removeAllListeners?.("soapError");
-      }
-    },
-  };
-}
-
-const defaultFactory = (c: ClusterConfig): AxlClient =>
-  withListenerCleanup(new axlService(c.hostname, c.username, c.password, c.version) as unknown as AxlClient);
+const defaultFactory = (c: ClusterConfig): AxlClient => new axlService(c.hostname, c.username, c.password, c.version);
 
 export class ClusterRunner {
   private clients = new Map<string, AxlClient>();
