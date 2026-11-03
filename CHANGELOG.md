@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.0] - Unreleased
+## [1.0.0] - 2026-11-03
 
 A ground-up rewrite. Existing `.env` files and `data/*.sql` files work unchanged.
 
