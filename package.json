@@ -1,44 +1,35 @@
 {
   "name": "docker-cucm-sql",
-  "version": "0.3.8",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "description": "Web-based SQL editor for Cisco CUCM (AXL executeSQLQuery) with multi-cluster support",
   "scripts": {
-    "start": "NODE_ENV=production nodemon ./bin/www",
-    "test": "NODE_ENV=test nodemon ./bin/www",
-    "staging": "NODE_ENV=staging nodemon ./bin/www",
-    "port": "lsof -i tcp:3000",
-    "docker:build": "docker build --platform $npm_package_config_docker_platform -t $npm_package_config_docker_username/$npm_package_config_docker_name:$npm_package_version -t $npm_package_config_docker_username/$npm_package_config_docker_name:latest .",
-    "docker:push": "docker push $npm_package_config_docker_username/$npm_package_config_docker_name:$npm_package_version && docker push $npm_package_config_docker_username/$npm_package_config_docker_name:latest",
-    "docker:run": "docker run -d -p 3000:3000 --name $npm_package_config_docker_name --restart=always --env-file=./env/test.env -v ./data:/app/data $npm_package_config_docker_username/$npm_package_name:$npm_package_version",
-    "docker:remove": "docker stop $npm_package_config_docker_name && docker rm $npm_package_config_docker_name",
-    "docker:prune": "docker system prune -a"
+    "build": "tsc -p . && npm --prefix web run build",
+    "build:server": "tsc -p .",
+    "test": "vitest run",
+    "dev:server": "tsx watch server/index.ts",
+    "start": "node dist/server/index.js"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.7.2",
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.6",
-    "cisco-axl": "^1.1.8",
-    "codemirror": "^6.65.7",
-    "cookie-parser": "~1.4.4",
-    "debug": "^4.3.4",
-    "dotenv": "^16.0.3",
-    "envalid": "^8.0.0",
-    "express": "^4.18.2",
-    "express-handlebars": "^7.1.2",
-    "handsontable": "^15.3.0",
-    "http-errors": "^2.0.0",
-    "jquery": "^3.7.1",
-    "morgan": "^1.10.0",
-    "nodemon": "^3.0.1",
-    "select2": "^4.1.0-rc.0",
-    "select2-bootstrap-5-theme": "^1.3.0",
-    "sql-formatter": "^13.1.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "@fastify/static": "^10.1.8",
+    "@fastify/swagger": "^9.9.3",
+    "@fastify/swagger-ui": "^6.1.3",
+    "archiver": "^8.0.0",
+    "cisco-axl": "^2.1.2",
+    "fastify": "^5.12.8",
+    "sql-formatter": "^15.9.0"
   },
-  "config": {
-    "docker_username": "sieteunoseis",
-    "docker_platform": "linux/amd64",
-    "docker_name": "cucm-sql-editor"
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
+    "@types/archiver": "^8.0.0",
+    "@types/node": "^22.20.5",
+    "adm-zip": "^0.6.1",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9",
+    "vitest": "^5.1.0"
   }
 }
