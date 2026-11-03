@@ -1,25 +1,14 @@
 import axlService from "cisco-axl";
 import type { ClusterConfig } from "./config.js";
-import { parseThrottle, type Throttle } from "../shared/paging.js";
+import { parseThrottle } from "../shared/paging.js";
+import type { ClusterResult, ClusterTest, Row, Schema } from "../shared/types.js";
 
-export type Row = Record<string, string>;
-
-export interface ClusterResult {
-  clusterId: string;
-  status: "ok" | "error" | "throttled";
-  columns: string[];
-  rows: Row[];
-  rowCount: number;
-  durationMs: number;
-  error?: string;
-  throttle?: Throttle;
-}
+export type { ClusterResult, Row, Schema };
 
 export interface AxlClient {
   executeSqlQuery(sql: string): Promise<unknown>;
 }
 
-export type Schema = Record<string, { name: string; type: string }[]>;
 
 const SCHEMA_TTL_MS = 60 * 60 * 1000;
 
@@ -138,7 +127,7 @@ export class ClusterRunner {
     return Promise.all(clusterIds.map((id) => this.runOne(sql, id)));
   }
 
-  async test(clusterId: string): Promise<{ ok: boolean; latencyMs: number; version?: string; error?: string }> {
+  async test(clusterId: string): Promise<ClusterTest> {
     const started = Date.now();
     try {
       await this.query(clusterId, "select first 1 name from processnode");

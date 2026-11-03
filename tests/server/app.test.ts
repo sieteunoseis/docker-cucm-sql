@@ -27,6 +27,7 @@ describe("app scaffold", () => {
     const res = await app.inject({ method: "GET", url: "/api/info" });
     expect(res.json().version).toBe("1.0.0");
     expect(res.json().clusterCount).toBe(0);
+    expect(res.json().maxBatches).toBe(200);
   });
 
   it("unknown /api path is JSON 404", async () => {

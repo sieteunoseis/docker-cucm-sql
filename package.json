@@ -7,9 +7,10 @@
   "scripts": {
     "build": "tsc -p . && npm --prefix web run build",
     "build:server": "tsc -p .",
-    "test": "vitest run",
+    "test": "vitest run && npm --prefix web test",
     "dev:server": "tsx watch server/index.ts",
-    "start": "node dist/server/index.js"
+    "start": "node dist/server/index.js",
+    "test:server": "vitest run"
   },
   "engines": {
     "node": ">=22"

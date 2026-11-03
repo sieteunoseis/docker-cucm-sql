@@ -1,21 +1,9 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
+import type { LogAction, LogEntry } from "../shared/types.js";
 
-export type LogAction = "run" | "save" | "move" | "duplicate" | "delete" | "folder_create";
-
-export interface LogEntry {
-  id: string;
-  ts: string;
-  user: string;
-  action: LogAction;
-  source: "ui" | "api";
-  path?: string;
-  to?: string;
-  sql?: string;
-  deletedSql?: Record<string, string>;
-  clusters?: { id: string; status: string; rowCount: number; durationMs: number; error?: string }[];
-}
+export type { LogAction, LogEntry };
 
 export interface LogFilter {
   user?: string;

@@ -1,15 +1,10 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import type { TreeNode } from "../shared/types.js";
+
+export type { TreeNode };
 
 export type QueryPath = string;
-
-export interface TreeNode {
-  type: "folder" | "query";
-  name: string;
-  path: QueryPath;
-  description?: string;
-  children?: TreeNode[];
-}
 
 export class StoreError extends Error {
   constructor(

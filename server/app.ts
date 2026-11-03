@@ -44,6 +44,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     version: config.version,
     imageTag: process.env.IMAGE_TAG ?? null,
     clusterCount: config.clusters.length,
+    maxBatches: config.maxBatches,
   }));
 
   await app.register(metaRoutes, { config, runner });
