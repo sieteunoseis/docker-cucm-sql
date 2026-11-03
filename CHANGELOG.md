@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.3] - 2026-11-03
+
+### Fixed
+- The editor page no longer shows a window scroll bar when everything fits; it only scrolls when results need the room
+
 ## [1.0.2] - 2026-11-03
 
 ### Added
