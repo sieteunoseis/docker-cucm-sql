@@ -15,6 +15,7 @@ export interface RunState {
   running: boolean;
   error: string | null;
   progress: BatchProgress | null;
+  maxBatches: number;
   run: (sql: string, clusters: string[], path?: string) => Promise<void>;
   /** re-fetch a throttled cluster's result in SKIP/FIRST batches */
   fetchAll: (clusterId: string) => Promise<void>;
@@ -130,5 +131,5 @@ export function useRun({ maxBatches }: { maxBatches: number }): RunState {
     setRunning(false);
   }, []);
 
-  return { results, running, error, progress, run, fetchAll, paginate, cancel };
+  return { results, running, error, progress, maxBatches, run, fetchAll, paginate, cancel };
 }

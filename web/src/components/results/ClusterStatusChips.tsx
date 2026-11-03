@@ -33,7 +33,10 @@ function Chip({ result, name, run }: { result: ClusterResult; name: string; run:
         <span>Too large for one request: {t.totalRows.toLocaleString()} rows (UCM 8 MB limit).</span>
         {paging.ok ? (
           <Button size="xs" variant="outline" onClick={() => run.fetchAll(result.clusterId)} disabled={run.running}>
-            <Layers className="size-3" /> Fetch all {t.totalRows.toLocaleString()} in {batches} batches
+            <Layers className="size-3" />
+            {batches <= run.maxBatches
+              ? `Fetch all ${t.totalRows.toLocaleString()} in ${batches} batches`
+              : `Fetch first ${(run.maxBatches * size).toLocaleString()} rows (${run.maxBatches}-batch limit)`}
           </Button>
         ) : (
           <span className="text-muted-foreground">{paging.reason}</span>

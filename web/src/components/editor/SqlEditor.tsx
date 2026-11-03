@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { editor as MonacoEditor } from "monaco-editor";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import type { Schema } from "@shared/types";
 import { monaco } from "@/lib/monaco";
@@ -66,6 +67,10 @@ function registerCompletions(m: Monaco) {
 export function SqlEditor({ value, onChange, schema, readOnly, onRun, onSave }: Props) {
   const { theme } = useTheme();
   const handlers = useRef({ onRun, onSave });
+  const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  // Monaco owns the text while typing; only changes made outside it (load, format, clear) are pushed in.
+  // A controlled value prop round-trips through React and drops keystrokes when typing fast.
+  const lastEmitted = useRef(value);
 
   useEffect(() => {
     handlers.current = { onRun, onSave };
@@ -75,7 +80,21 @@ export function SqlEditor({ value, onChange, schema, readOnly, onRun, onSave }: 
     schemaRef.current = schema;
   }, [schema]);
 
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || value === lastEmitted.current || value === editor.getValue()) return;
+    lastEmitted.current = value;
+    const model = editor.getModel();
+    if (!model) return;
+    // an edit (not setValue) keeps Ctrl+Z working across Format / Load
+    editor.pushUndoStop();
+    editor.executeEdits("external", [{ range: model.getFullModelRange(), text: value }]);
+    editor.pushUndoStop();
+  }, [value]);
+
   const handleMount: OnMount = (editor, m) => {
+    editorRef.current = editor;
+    if (editor.getValue() !== value) editor.setValue(value);
     registerCompletions(m);
     editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.Enter, () => handlers.current.onRun());
     editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.KeyS, () => handlers.current.onSave());
@@ -88,8 +107,11 @@ export function SqlEditor({ value, onChange, schema, readOnly, onRun, onSave }: 
         height="280px"
         language="sql"
         theme={theme === "dark" ? "vs-dark" : "light"}
-        value={value}
-        onChange={(v) => onChange(v ?? "")}
+        defaultValue={value}
+        onChange={(v) => {
+          lastEmitted.current = v ?? "";
+          onChange(v ?? "");
+        }}
         onMount={handleMount}
         options={{
           minimap: { enabled: false },
@@ -104,6 +126,8 @@ export function SqlEditor({ value, onChange, schema, readOnly, onRun, onSave }: 
           suggestOnTriggerCharacters: true,
           readOnly,
           automaticLayout: true,
+          // Monaco's native EditContext input drops keystrokes in Chromium; use the classic textarea input
+          editContext: false,
         }}
       />
     </div>

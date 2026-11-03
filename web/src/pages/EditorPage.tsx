@@ -19,7 +19,7 @@ import { useSchema } from "@/hooks/useSchema";
 import { useRun } from "@/hooks/useRun";
 import { useTheme } from "@/hooks/useTheme";
 
-export const OPEN_KEY_PREFIX = "cucm-sql:open:";
+import { OPEN_KEY_PREFIX } from "@/lib/links";
 
 function takeHandedSql(openId: string | null): string | null {
   if (!openId) return null;
@@ -175,11 +175,13 @@ export function EditorPage() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        e.stopPropagation();
         setPaletteOpen(true);
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // capture phase: Monaco treats Ctrl+K as a chord prefix and would swallow it
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, []);
 
   const actions: PaletteAction[] = [

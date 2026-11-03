@@ -36,6 +36,18 @@ describe("app scaffold", () => {
     expect(res.headers["content-type"]).toContain("application/json");
   });
 
+  it("missing static asset is 404, not index.html", async () => {
+    const res = await app.inject({ method: "GET", url: "/assets/index-old.js" });
+    expect(res.statusCode).toBe(404);
+    expect(res.body).not.toContain("spa");
+  });
+
+  it("SPA fallback serves deep links whose query name contains a dot", async () => {
+    const res = await app.inject({ method: "GET", url: "/q/Folder/Report.v2" });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain("spa");
+  });
+
   it("SPA fallback serves index.html for /q/Some/Path", async () => {
     const res = await app.inject({ method: "GET", url: "/q/Some/Path" });
     expect(res.statusCode).toBe(200);

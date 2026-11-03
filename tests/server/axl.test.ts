@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { ClusterRunner, type AxlClient } from "../../server/axl.js";
+import { EventEmitter } from "node:events";
+import { ClusterRunner, withListenerCleanup, type AxlClient } from "../../server/axl.js";
 import { buildApp } from "../../server/app.js";
 import type { ClusterConfig } from "../../server/config.js";
 import { testConfig } from "./helpers.js";
@@ -181,5 +182,35 @@ describe("query routes", () => {
     expect((await a.inject({ method: "GET", url: "/api/clusters/zzz/test" })).statusCode).toBe(404);
     const schema = await a.inject({ method: "GET", url: "/api/schema?cluster=a" });
     expect(schema.json().tables.t).toEqual([{ name: "c", type: "char" }]);
+  });
+});
+
+describe("withListenerCleanup", () => {
+  it("drops soapError listeners cisco-axl leaves behind once no query is in flight", async () => {
+    const soap = new EventEmitter();
+    const svc = {
+      _soapClient: soap,
+      async executeSqlQuery() {
+        soap.on("soapError", () => {});
+        return { row: [] };
+      },
+    };
+    const client = withListenerCleanup(svc);
+    await Promise.all([client.executeSqlQuery("a"), client.executeSqlQuery("b")]);
+    await client.executeSqlQuery("c");
+    expect(soap.listenerCount("soapError")).toBe(0);
+  });
+
+  it("still cleans up when the query fails", async () => {
+    const soap = new EventEmitter();
+    const svc = {
+      _soapClient: soap,
+      async executeSqlQuery(): Promise<unknown> {
+        soap.on("soapError", () => {});
+        throw new Error("boom");
+      },
+    };
+    await expect(withListenerCleanup(svc).executeSqlQuery("x")).rejects.toThrow("boom");
+    expect(soap.listenerCount("soapError")).toBe(0);
   });
 });

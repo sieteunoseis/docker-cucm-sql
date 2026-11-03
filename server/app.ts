@@ -79,7 +79,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   }
 
   app.setNotFoundHandler((req, reply) => {
-    if (req.url.startsWith("/api") || req.method !== "GET" || !hasWeb) {
+    // missing build assets (e.g. /assets/x.js after a redeploy) must 404 rather than return the HTML shell
+    const pathname = req.url.split("?")[0];
+    const isAsset = !pathname.startsWith("/q/") && (pathname.startsWith("/assets/") || /\.[a-z0-9]+$/i.test(pathname));
+    if (req.url.startsWith("/api") || req.method !== "GET" || !hasWeb || isAsset) {
       return reply.code(404).send({ error: "not_found", message: `Route ${req.method} ${req.url} not found` });
     }
     return reply.type("text/html").sendFile("index.html");
