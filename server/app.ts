@@ -13,6 +13,7 @@ import { logRoutes } from "./routes/log.js";
 import { queriesRoutes } from "./routes/queries.js";
 import { legacyRoutes } from "./routes/legacy.js";
 import { QueryStore } from "./store.js";
+import { runRoutes } from "./routes/run.js";
 import path from "node:path";
 
 export interface AppDeps {
@@ -69,6 +70,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   await app.register(logRoutes, { log });
   await app.register(queriesRoutes, { store, log });
   await app.register(legacyRoutes, { config, runner, store });
+  await app.register(runRoutes, { config, runner, store, log });
 
   const hasWeb = deps.webDist && existsSync(deps.webDist);
   if (hasWeb) {
