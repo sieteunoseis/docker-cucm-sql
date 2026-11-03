@@ -4,6 +4,7 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { existsSync } from "node:fs";
 import type { AppConfig } from "./config.js";
+import { metaRoutes } from "./routes/meta.js";
 
 export interface AppDeps {
   config: AppConfig;
@@ -28,6 +29,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     imageTag: process.env.IMAGE_TAG ?? null,
     clusterCount: config.clusters.length,
   }));
+
+  await app.register(metaRoutes, { config });
 
   const hasWeb = deps.webDist && existsSync(deps.webDist);
   if (hasWeb) {
